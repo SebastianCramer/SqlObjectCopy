@@ -18,5 +18,8 @@ namespace SqlObjectCopy
 
         [Option('d', "delta", Required = false, HelpText = "DeltaColumn name for delta data transport")]
         public string DeltaColumnName { get; set; }
+        
+        [Option('u', "unattended", Required = false, HelpText = "Unattended mode. Skips deletion dialog.")]
+        public bool Unattended { get; set; }
     }
 }

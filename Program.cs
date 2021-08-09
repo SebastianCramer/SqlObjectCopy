@@ -39,12 +39,15 @@ namespace SqlObjectCopy
                     // give the user output on params
                     WriteParamInfo(options);
 
-                    Log.Logger.Information("Copying with this tool potentially drops and recreates the database objects. Do you really want to do that? y/n:");
-                    ConsoleKeyInfo answer = Console.ReadKey();
-
-                    if (answer.Key != ConsoleKey.Y)
+                    if (!options.Unattended)
                     {
-                        return;
+                        Log.Logger.Information("Copying with this tool potentially drops and recreates the database objects. Do you really want to do that? y/n:");
+                        ConsoleKeyInfo answer = Console.ReadKey();
+
+                        if (answer.Key != ConsoleKey.Y)
+                        {
+                            return;
+                        }
                     }
 
                     // The action starts here
