@@ -25,9 +25,17 @@ namespace SqlObjectCopy.DBActions
 
         public void Handle(List<SqlObject> objects, Options options)
         {
-            if (!string.IsNullOrWhiteSpace(options.Schema))
+            if (!string.IsNullOrEmpty(options.Schema))
             {
                 CreateSchemaIfNotExists(options.Schema);
+            }
+            else
+            {
+                // get all schemas from object list
+                objects.Select(o => o.SchemaName).Distinct().ToList().ForEach(o =>
+                {
+                    CreateSchemaIfNotExists(o);
+                });
             }
 
             NextAction?.Handle(objects, options);
