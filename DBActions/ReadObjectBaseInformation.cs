@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SqlObjectCopy.Configuration;
 using SqlObjectCopy.Contexts;
 using SqlObjectCopy.Utilities;
 using System;
@@ -19,13 +19,13 @@ namespace SqlObjectCopy.DBActions
     {
         public IDbAction NextAction { get; set; }
         
-        private readonly IConfiguration _configuration;
+        private readonly SocConfiguration _configuration;
         private readonly ScriptProvider _scriptProvider;
         private readonly ILogger _logger;
 
         private readonly string CONSTRAINT_PATTERN = @"ALTER TABLE [\[\].\w]+ WITH CHECK ADD CONSTRAINT [\[\]\w. ()]+";
 
-        public ReadObjectBaseInformation(IConfiguration configuration, ScriptProvider scriptProvider, ILogger<ReadObjectBaseInformation> logger)
+        public ReadObjectBaseInformation(SocConfiguration configuration, ScriptProvider scriptProvider, ILogger<ReadObjectBaseInformation> logger)
         {
             _configuration = configuration;
             _scriptProvider = scriptProvider;

@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using SqlObjectCopy.Configuration;
 using SqlObjectCopy.Extensions;
 using SqlObjectCopy.Utilities;
 using System;
@@ -14,9 +14,9 @@ namespace SqlObjectCopy.DBActions
 
         private readonly ScriptProvider _scriptProvider;
         private readonly ILogger _logger;
-        private readonly IConfiguration _configuration;
+        private readonly SocConfiguration _configuration;
 
-        public SortByDependencies(ScriptProvider scriptProvider, ILogger<SortByDependencies> logger, IConfiguration configuration)
+        public SortByDependencies(ScriptProvider scriptProvider, ILogger<SortByDependencies> logger, SocConfiguration configuration)
         {
             _scriptProvider = scriptProvider;
             _logger = logger;

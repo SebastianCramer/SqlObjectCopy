@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SqlObjectCopy.Configuration;
 using SqlObjectCopy.Contexts;
 using System;
 using System.Collections.Generic;
@@ -13,10 +13,10 @@ namespace SqlObjectCopy.DBActions
     {
         public IDbAction NextAction { get; set; }
 
-        private readonly IConfiguration _configuration;
+        private readonly SocConfiguration _configuration;
         private readonly ILogger _logger;
 
-        public TruncateTarget(IConfiguration configuration, ILogger<TruncateTarget> logger)
+        public TruncateTarget(SocConfiguration configuration, ILogger<TruncateTarget> logger)
         {
             _configuration = configuration;
             _logger = logger;

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SqlObjectCopy.Configuration;
 using SqlObjectCopy.Contexts;
 using SqlObjectCopy.Models;
 using SqlObjectCopy.Utilities;
@@ -15,7 +15,7 @@ namespace SqlObjectCopy.Extensions
 {
     public static class SqlObjectExtensions
     {
-        public static bool HasData(this SqlObject obj, IConfiguration configuration)
+        public static bool HasData(this SqlObject obj, SocConfiguration configuration)
         {
             if (obj.ObjectType == SqlObjectType.Table)
             {
@@ -46,7 +46,7 @@ namespace SqlObjectCopy.Extensions
             }
         }
 
-        public static bool Exists(this SqlObject obj, IConfiguration configuration)
+        public static bool Exists(this SqlObject obj, SocConfiguration configuration)
         {
             using ISocDbContext targetContext = new TargetContext(configuration);
 
@@ -71,7 +71,7 @@ namespace SqlObjectCopy.Extensions
             return result;
         }
 
-        public static List<string> GetReferencedObjectNames(this SqlObject obj, IConfiguration configuration, ScriptProvider provider, ILogger logger)
+        public static List<string> GetReferencedObjectNames(this SqlObject obj, SocConfiguration configuration, ScriptProvider provider, ILogger logger)
         {
             List<string> refList = new List<string>();
 
@@ -115,7 +115,7 @@ namespace SqlObjectCopy.Extensions
             return refList;
         }
 
-        public static long SourceRowCount(this SqlObject obj, IConfiguration configuration)
+        public static long SourceRowCount(this SqlObject obj, SocConfiguration configuration)
         {
             using SourceContext sourceContext = new SourceContext(configuration);
             SqlConnection con = new SqlConnection(sourceContext.Database.GetDbConnection().ConnectionString);
@@ -152,11 +152,11 @@ namespace SqlObjectCopy.Extensions
         /// <param name="obj">The object of whom to get the id from</param>
         /// <param name="configuration">configuration for instancing a new db connection</param>
         /// <returns></returns>
-        public static int GetObjectID(this SqlObject obj, IConfiguration configuration)
+        public static int GetObjectID(this SqlObject obj, SocConfiguration configuration)
         {
             using ISocDbContext targetContext = new TargetContext(configuration);
             FormattableString command = FormattableStringFactory.Create("SELECT CAST(OBJECT_ID('{0}') AS NVARCHAR) AS CommandText", obj.FullName);
-            var result = targetContext.Scripts.FromSqlRaw(command.ToString()).FirstOrDefault();
+            Scripts result = targetContext.Scripts.FromSqlRaw(command.ToString()).FirstOrDefault();
             if (int.TryParse(result.CommandText, out int objectID))
             {
                 return objectID;
@@ -171,7 +171,7 @@ namespace SqlObjectCopy.Extensions
         /// <param name="obj">A sql object</param>
         /// <param name="configuration">configuration to create context class</param>
         /// <returns>the last delta value or empty, if object is no table or has no data</returns>
-        public static string GetLastDeltaValue(this SqlObject obj, IConfiguration configuration)
+        public static string GetLastDeltaValue(this SqlObject obj, SocConfiguration configuration)
         {
             if (obj.ObjectType != SqlObjectType.Table || string.IsNullOrWhiteSpace(obj.DeltaColumnName))
             {
@@ -182,7 +182,7 @@ namespace SqlObjectCopy.Extensions
             using ISocDbContext targetContext = new TargetContext(configuration);
             FormattableString command = FormattableStringFactory.Create("SELECT CAST(MAX({0}) AS NVARCHAR) AS CommandText FROM {1}", obj.DeltaColumnName, obj.FullName);
 
-            var result = targetContext.Scripts.FromSqlRaw(command.ToString()).FirstOrDefault();
+            Scripts result = targetContext.Scripts.FromSqlRaw(command.ToString()).FirstOrDefault();
 
             return result.CommandText ?? string.Empty;
         }

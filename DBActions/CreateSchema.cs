@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SqlObjectCopy.Configuration;
 using SqlObjectCopy.Contexts;
 using SqlObjectCopy.Utilities;
 using System.Collections.Generic;
@@ -8,15 +8,15 @@ using System.Linq;
 
 namespace SqlObjectCopy.DBActions
 {
-    class CreateSchema : IDbAction
+    internal class CreateSchema : IDbAction
     {
         public IDbAction NextAction { get; set; }
 
-        private readonly IConfiguration _configuration;
+        private readonly SocConfiguration _configuration;
         private readonly ILogger _logger;
         private readonly ScriptProvider _scriptProvider;
 
-        public CreateSchema(IConfiguration configuration, ILogger<CreateSchema> logger, ScriptProvider scriptProvider)
+        public CreateSchema(SocConfiguration configuration, ILogger<CreateSchema> logger, ScriptProvider scriptProvider)
         {
             _configuration = configuration;
             _logger = logger;
@@ -45,7 +45,7 @@ namespace SqlObjectCopy.DBActions
         {
             using ISocDbContext targetContext = new TargetContext(_configuration);
 
-            var targetSchema = (from s in targetContext.Schemata
+            Models.Schemata targetSchema = (from s in targetContext.Schemata
                                 where s.SCHEMA_NAME == schemaName
                                 select s).AsNoTracking().FirstOrDefault();
 

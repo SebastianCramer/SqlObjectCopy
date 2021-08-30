@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using SqlObjectCopy.Configuration;
 using SqlObjectCopy.Contexts;
 using SqlObjectCopy.DBActions;
 using System.Collections.Generic;
@@ -11,10 +11,10 @@ namespace SqlObjectCopy.HelperActions
     {
         public IDbAction NextAction { get; set; }
 
-        private readonly IConfiguration _configuration;
+        private readonly SocConfiguration _configuration;
         private readonly ILogger _logger;
 
-        public ReadSchemaParameter(IConfiguration configuration, ILogger<ReadSchemaParameter> logger)
+        public ReadSchemaParameter(SocConfiguration configuration, ILogger<ReadSchemaParameter> logger)
         {
             _configuration = configuration;
             _logger = logger;

@@ -1,7 +1,9 @@
 ﻿using CommandLine;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Serilog;
+using SqlObjectCopy.Configuration;
 using SqlObjectCopy.DBActions;
 using SqlObjectCopy.HelperActions;
 using SqlObjectCopy.Pipelines;
@@ -48,6 +50,8 @@ namespace SqlObjectCopy
                         {
                             return;
                         }
+
+                        Console.Write(Environment.NewLine);
                     }
 
                     // The action starts here
@@ -137,6 +141,12 @@ namespace SqlObjectCopy
             services.AddScoped<ReadObjectParameter>();
             services.AddScoped<ReadSchemaParameter>();
             services.AddScoped<CreateSchema>();
+
+            SocConfiguration sconfig = new SocConfiguration();
+            new ConfigureFromConfigurationOptions<SocConfiguration>(Configuration.GetSection("SocConfiguration")).Configure(sconfig);
+            services.AddSingleton(sconfig);
+
+            services.AddScoped<SelectDatabaseConnection>();
 
             ServiceProvider = services.BuildServiceProvider();
             Console.WriteLine("done");

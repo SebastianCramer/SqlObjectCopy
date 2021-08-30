@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SqlObjectCopy.Configuration;
 using SqlObjectCopy.DBActions;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,7 @@ namespace SqlObjectCopy.HelperActions
         {
             _logger = logger;
         }
+
         public void Handle(List<SqlObject> objects, Options options)
         {
             if (!string.IsNullOrWhiteSpace(options.ListFile))

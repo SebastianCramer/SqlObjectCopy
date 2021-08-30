@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SqlObjectCopy.Configuration;
 using SqlObjectCopy.Contexts;
 using SqlObjectCopy.Extensions;
 using SqlObjectCopy.Models;
@@ -19,19 +20,16 @@ namespace SqlObjectCopy.DBActions
     {
         public IDbAction NextAction { get; set; }
 
-        private readonly IConfiguration _configuration;
+        private readonly SocConfiguration _configuration;
         private readonly ILogger _logger;
         private readonly ScriptProvider _scriptProvider;
 
         // for multithreading
         readonly SemaphoreSlim throttler;
 
-        public TransferData(IConfiguration configuration, ILogger<TransferData> logger, ScriptProvider scriptProvider)
+        public TransferData(SocConfiguration configuration, ILogger<TransferData> logger, ScriptProvider scriptProvider)
         {
-            if (int.TryParse(configuration.GetSection("Configuration:MaxParallelTransferThreads").Value, out int threads))
-            {
-                throttler = new SemaphoreSlim(threads);
-            }
+            throttler = new SemaphoreSlim(configuration.MaxParallelTransferThreads);
 
             _configuration = configuration;
             _logger = logger;

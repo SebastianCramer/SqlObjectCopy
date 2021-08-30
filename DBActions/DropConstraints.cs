@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using SqlObjectCopy.Extensions;
 using Microsoft.Extensions.Logging;
+using SqlObjectCopy.Configuration;
 
 namespace SqlObjectCopy.DBActions
 {
@@ -13,10 +14,10 @@ namespace SqlObjectCopy.DBActions
     {
         public IDbAction NextAction { get; set; }
 
-        private readonly IConfiguration _configuration;
+        private readonly SocConfiguration _configuration;
         private readonly ILogger _logger;
 
-        public DropConstraints(IConfiguration configuration, ILogger<DropConstraints> logger)
+        public DropConstraints(SocConfiguration configuration, ILogger<DropConstraints> logger)
         {
             _configuration = configuration;
             _logger = logger;

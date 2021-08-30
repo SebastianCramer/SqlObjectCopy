@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using SqlObjectCopy.Configuration;
 using SqlObjectCopy.Models;
-using System;
+using System.Linq;
 
 namespace SqlObjectCopy.Contexts
 {
     public class SourceContext : DbContext, ISocDbContext
     {
-        private readonly IConfiguration _configuration;
+        private readonly SocConfiguration _configuration;
 
         #region Models
 
@@ -27,7 +27,7 @@ namespace SqlObjectCopy.Contexts
         /// </summary>
         /// <param name="configuration">Configuration for DB Connection retrieval</param>
         /// <param name="logger">Logger instance</param>
-        public SourceContext(IConfiguration configuration)
+        public SourceContext(SocConfiguration configuration)
         {
             _configuration = configuration;
         }
@@ -51,7 +51,7 @@ namespace SqlObjectCopy.Contexts
         {
             if (!optionsBuilder.IsConfigured)
             {
-                string connectionString = _configuration.GetSection("Connections:Source").Value;
+                string connectionString = _configuration.Connections.Where(c => c.Selected).First<Connection>().Source;
                 if (!string.IsNullOrEmpty(connectionString))
                 {
                     // use this

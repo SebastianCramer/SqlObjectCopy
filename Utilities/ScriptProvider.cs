@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using SqlObjectCopy.Configuration;
 using SqlObjectCopy.Contexts;
 using System;
 using System.IO;
@@ -11,9 +12,9 @@ namespace SqlObjectCopy.Utilities
     public class ScriptProvider
     {
         private readonly string ScriptPath = Path.Combine(Directory.GetParent(AppContext.BaseDirectory).FullName, "Scripts/");
-        private readonly IConfiguration _configuration;
+        private readonly SocConfiguration _configuration;
 
-        public ScriptProvider(IConfiguration configuration)
+        public ScriptProvider(SocConfiguration configuration)
         {
             _configuration = configuration;
         }
@@ -53,7 +54,7 @@ namespace SqlObjectCopy.Utilities
                 string command = File.ReadAllText(Path.Combine(ScriptPath, fileName)).Replace("[%ProcedureName%]", Procedure.FullName);
 
                 using ISocDbContext sourceContext = new SourceContext(_configuration);
-                var obj = sourceContext.Scripts.FromSqlRaw(command).FirstOrDefault();
+                Models.Scripts obj = sourceContext.Scripts.FromSqlRaw(command).FirstOrDefault();
                 if (obj != null) {
                     return obj.CommandText;
                 } else
