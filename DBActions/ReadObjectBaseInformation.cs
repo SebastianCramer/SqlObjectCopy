@@ -50,9 +50,15 @@ namespace SqlObjectCopy.DBActions
                 }
             }
 
-            objects = GetScripts(objects);
-
-            NextAction?.Handle(objects, options);
+            // if there are any valid objcts, proceed
+            if (objects.Where(o => o.Valid).Any())
+            {
+                objects = GetScripts(objects);
+                NextAction?.Handle(objects, options);
+            } else
+            {
+                _logger.LogInformation("no more objects valid. ending process.");
+            }
         }        
 
         public SqlObject GetObjectIdentification(SqlObject obj)
