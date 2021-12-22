@@ -44,6 +44,13 @@ namespace SqlObjectCopy.HelperActions
                     _logger.LogError("there is no connection with that number");
                     throw new ArgumentOutOfRangeException("invalid connection id chosen");
                 }
+            } else if (_configuration.Connections.Length == 1) {
+                _configuration.Connections[0].Selected = true;
+            } else
+            {
+                // error case
+                _logger.LogError("no connections found. please check configuration file");
+                throw new ArgumentNullException(nameof(_configuration.Connections));
             }
 
             NextAction?.Handle(objects, options);

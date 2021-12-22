@@ -115,6 +115,7 @@ namespace SqlObjectCopy.DBActions
                 SqlObjectType.Table => _scriptProvider.GetTableCreateScript(obj),
                 SqlObjectType.View => _scriptProvider.GetProcedureCreateScript(obj),
                 SqlObjectType.Type => _scriptProvider.GetTypeCreateScript(obj),
+                SqlObjectType.Function => string.Empty,
                 _ => string.Empty,
             };
 

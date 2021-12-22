@@ -6,6 +6,7 @@
         Procedure,
         View,
         Type,
+        Function,
         Unknown
     }
 }

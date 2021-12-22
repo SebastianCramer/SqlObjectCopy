@@ -52,8 +52,8 @@ namespace SqlObjectCopy.Pipelines
             IDbAction EntryPoint;
             EntryPoint = _serviceProvider.GetService(typeof(ReadParameterObjectFile)) as IDbAction;
             AttachToQueue(EntryPoint, typeof(ReadObjectParameter));
-            AttachToQueue(EntryPoint, typeof(ReadSchemaParameter));
             AttachToQueue(EntryPoint, typeof(SelectDatabaseConnection));
+            AttachToQueue(EntryPoint, typeof(ReadSchemaParameter));
             AttachToQueue(EntryPoint, typeof(ReadObjectBaseInformation));
             AttachToQueue(EntryPoint, typeof(SortByDependencies));
             AttachToQueue(EntryPoint, typeof(CreateSchema));
