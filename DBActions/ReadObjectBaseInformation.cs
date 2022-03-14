@@ -18,7 +18,7 @@ namespace SqlObjectCopy.DBActions
     internal class ReadObjectBaseInformation : IDbAction
     {
         public IDbAction NextAction { get; set; }
-        
+
         private readonly SocConfiguration _configuration;
         private readonly ScriptProvider _scriptProvider;
         private readonly ILogger _logger;
@@ -55,11 +55,12 @@ namespace SqlObjectCopy.DBActions
             {
                 objects = GetScripts(objects);
                 NextAction?.Handle(objects, options);
-            } else
+            }
+            else
             {
                 _logger.LogInformation("no more objects valid. ending process.");
             }
-        }        
+        }
 
         public SqlObject GetObjectIdentification(SqlObject obj)
         {
@@ -72,8 +73,8 @@ namespace SqlObjectCopy.DBActions
 
             // Add tables
             SqlObject tableObject = (from t in sourceContext.Tables
-                                 where t.TABLE_SCHEMA == obj.SchemaName && (obj.ObjectName == null || t.TABLE_NAME == obj.ObjectName)
-                                 select new SqlObject(t.TABLE_SCHEMA, t.TABLE_NAME, t.TABLE_TYPE == "BASE TABLE" ? SqlObjectType.Table : SqlObjectType.View)).AsNoTracking().FirstOrDefault();
+                                     where t.TABLE_SCHEMA == obj.SchemaName && (obj.ObjectName == null || t.TABLE_NAME == obj.ObjectName)
+                                     select new SqlObject(t.TABLE_SCHEMA, t.TABLE_NAME, t.TABLE_TYPE == "BASE TABLE" ? SqlObjectType.Table : SqlObjectType.View)).AsNoTracking().FirstOrDefault();
 
             if (tableObject != null)
             {
@@ -82,8 +83,8 @@ namespace SqlObjectCopy.DBActions
 
             // Add procedures
             SqlObject procedureObject = (from r in sourceContext.Routines
-                                 where r.ROUTINE_SCHEMA == obj.SchemaName && (obj.ObjectName == null || r.ROUTINE_NAME == obj.ObjectName)
-                                 select new SqlObject(r.ROUTINE_SCHEMA, r.ROUTINE_NAME, SqlObjectType.Procedure)).AsNoTracking().FirstOrDefault();
+                                         where r.ROUTINE_SCHEMA == obj.SchemaName && (obj.ObjectName == null || r.ROUTINE_NAME == obj.ObjectName)
+                                         select new SqlObject(r.ROUTINE_SCHEMA, r.ROUTINE_NAME, SqlObjectType.Procedure)).AsNoTracking().FirstOrDefault();
 
             if (procedureObject != null)
             {
