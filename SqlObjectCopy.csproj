@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>SqlObjectCopy</RootNamespace>
     <StartupObject>SqlObjectCopy.Program</StartupObject>
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
