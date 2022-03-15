@@ -35,18 +35,19 @@ namespace SqlObjectCopy.DBActions
         // We're assuming that we get a bunch of sql objects with just the name and schema
         public void Handle(List<SqlObject> objects, Options options)
         {
-            foreach (SqlObject obj in objects)
+            foreach (SqlObject o in objects)
             {
                 try
                 {
-                    _logger.LogInformation("{Object} reading base information", obj.FullName);
-                    SqlObject readObject = GetObjectIdentification(obj);
-                    obj.ObjectType = readObject.ObjectType;
+                    _logger.LogInformation("{Object} reading base information", o.FullName);
+                    SqlObject readObject = GetObjectIdentification(o);
+                    o.ObjectType = readObject.ObjectType;
                 }
                 catch (Exception ex)
                 {
-                    obj.Valid = false;
-                    _logger.LogError(ex, "{Object} an error occured while reading base information", obj.FullName);
+                    o.Valid = false;
+                    o.LastException = ex;
+                    _logger.LogError(ex, "{Object} an error occured while reading base information", o.FullName);
                 }
             }
 

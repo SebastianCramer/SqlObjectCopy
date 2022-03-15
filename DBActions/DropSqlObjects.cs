@@ -38,6 +38,7 @@ namespace SqlObjectCopy.DBActions
                 catch (Exception ex)
                 {
                     o.Valid = false;
+                    o.LastException = ex;
                     _logger.LogError(ex, "{Object} an error occured during dropping the object", o.FullName);
                 }
                 

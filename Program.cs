@@ -141,6 +141,7 @@ namespace SqlObjectCopy
             services.AddScoped<ReadObjectParameter>();
             services.AddScoped<ReadSchemaParameter>();
             services.AddScoped<CreateSchema>();
+            services.AddScoped<DisplaySummary>();
 
             SocConfiguration sconfig = new SocConfiguration();
             new ConfigureFromConfigurationOptions<SocConfiguration>(Configuration.GetSection("SocConfiguration")).Configure(sconfig);

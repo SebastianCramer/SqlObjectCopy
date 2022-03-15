@@ -34,6 +34,11 @@ namespace SqlObjectCopy
         /// </summary>
         public bool Valid { get; set; }
 
+        /// <summary>
+        /// Contains the last exception that occured for this object
+        /// </summary>
+        public Exception LastException { get; set; }
+
 
         // Scripts for DBOperations
         public string CreateScript { get; set; }

@@ -31,9 +31,10 @@ namespace SqlObjectCopy.DBActions
                     {
                         CreateTargetObjectConstraints(o);
                     }
-                    catch (System.Exception)
+                    catch (System.Exception ex)
                     {
                         o.Valid = false;
+                        o.LastException = ex;
                     }
                 });
 

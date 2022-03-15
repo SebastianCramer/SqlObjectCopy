@@ -32,6 +32,7 @@ namespace SqlObjectCopy.DBActions
                 catch (System.Exception ex)
                 {
                     o.Valid = false;
+                    o.LastException = ex;
                     _logger.LogError(ex, "{Object} an error occured on creating object");
                 }
                 
@@ -58,10 +59,11 @@ namespace SqlObjectCopy.DBActions
                     target.Database.ExecuteSqlRaw(obj.CreateScript);
                     return true;
                 }
-                catch (System.Exception)
+                catch (System.Exception ex)
                 {
                     _logger.LogWarning("{Object} could not be created. there are probably referenced objects missing in the target database", obj.FullName);
                     obj.Valid = false;
+                    obj.LastException = ex;
                     return true;
                 }
             }

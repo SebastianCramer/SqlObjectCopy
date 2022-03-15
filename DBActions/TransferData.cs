@@ -56,6 +56,7 @@ namespace SqlObjectCopy.DBActions
                     {
                         _logger.LogError(ex, "{Object} an error occured while transferring data", o.FullName);
                         o.Valid = false;
+                        o.LastException = ex;
                     }
                 });
 
@@ -73,6 +74,7 @@ namespace SqlObjectCopy.DBActions
                     {
                         _logger.LogError(ex, "{Object} an error occured while transferring data", o.FullName);
                         o.Valid = false;
+                        o.LastException = ex;
                     }
                 });
             }
@@ -127,6 +129,8 @@ namespace SqlObjectCopy.DBActions
                 }
                 catch (Exception ex)
                 {
+                    obj.Valid = false;
+                    obj.LastException = ex;
                     _logger.LogError(ex, "{Object} an error occured on transferring data", obj.FullName);
                 }
                 finally

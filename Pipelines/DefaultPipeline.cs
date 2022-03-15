@@ -62,6 +62,7 @@ namespace SqlObjectCopy.Pipelines
             AttachToQueue(EntryPoint, typeof(CreateSqlObjects));
             AttachToQueue(EntryPoint, typeof(TransferData));
             AttachToQueue(EntryPoint, typeof(CreateConstraints));
+            AttachToQueue(EntryPoint, typeof(DisplaySummary));
 
             actionQueue = EntryPoint;
         }
