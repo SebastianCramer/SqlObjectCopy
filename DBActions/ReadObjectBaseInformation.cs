@@ -67,7 +67,7 @@ namespace SqlObjectCopy.DBActions
         {
             if (string.IsNullOrEmpty(obj.SchemaName))
             {
-                throw new ArgumentException("Paramter may not be null or empty", "schema");
+                throw new ArgumentException("Paramter may not be null or empty", nameof(obj));
             }
 
             using ISocDbContext sourceContext = new SourceContext(_configuration);
@@ -121,7 +121,7 @@ namespace SqlObjectCopy.DBActions
                 _ => string.Empty,
             };
 
-            List<string> constraints = new List<string>();
+            List<string> constraints = new();
 
             // all constraints 
             foreach (string c in script.Split("\r").Where(s => s.StartsWith("ALTER TABLE")).ToList())
@@ -156,7 +156,7 @@ namespace SqlObjectCopy.DBActions
             obj.CreateScript = script;
         }
 
-        private void SetDeleteScript(SqlObject obj)
+        private static void SetDeleteScript(SqlObject obj)
         {
             obj.DeleteScript = FormattableStringFactory.Create("DROP {0} [{1}].[{2}]", obj.ObjectType.ToString(), obj.SchemaName, obj.ObjectName).ToString();
         }

@@ -40,7 +40,14 @@ namespace SqlObjectCopy.Contexts
             modelBuilder.Entity<Constraints>().ToView("REFERENTIAL_CONSTRAINTS", "INFORMATION_SCHEMA").HasNoKey();
             modelBuilder.Entity<Domains>().ToView("DOMAINS", "INFORMATION_SCHEMA").HasNoKey();
             modelBuilder.Entity<Scripts>().HasNoKey();
-            modelBuilder.Entity<Columns>().ToView("columns", "sys").HasNoKey();
+            modelBuilder.Entity<Columns>(entity =>
+            {
+                entity.ToView("columns", "sys");
+                entity.HasNoKey();
+                entity.Property(p => p.ObjectId).HasColumnName("object_id");
+                entity.Property(p => p.Name).HasColumnName("name");
+                entity.Property(p => p.IsComputed).HasColumnName("is_computed");
+            });
         }
 
         /// <summary>

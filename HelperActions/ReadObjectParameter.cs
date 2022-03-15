@@ -12,7 +12,7 @@ namespace SqlObjectCopy.HelperActions
         {
             if (!string.IsNullOrEmpty(options.ObjectName))
             {
-                string schemaName = options.ObjectName.Substring(0, options.ObjectName.IndexOf('.'));
+                string schemaName = options.ObjectName[..options.ObjectName.IndexOf('.')];
                 string objectName = options.ObjectName.Replace(schemaName + '.', string.Empty);
 
                 if (!string.IsNullOrEmpty(schemaName) && !string.IsNullOrEmpty(objectName))

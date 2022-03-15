@@ -93,14 +93,14 @@ namespace SqlObjectCopy.DBActions
 
                 // copy command
                 // source stuff
-                SqlConnection con = new SqlConnection(sourceContext.Database.GetDbConnection().ConnectionString);
+                SqlConnection con = new(sourceContext.Database.GetDbConnection().ConnectionString);
 
                 // now the bulk copy
                 string command = GetBulkStatement(obj);
-                SqlCommand scmd = new SqlCommand(command.ToString(), con);
+                SqlCommand scmd = new(command.ToString(), con);
 
                 // target stuff
-                SqlBulkCopy copy = new SqlBulkCopy(target.Database.GetDbConnection().ConnectionString, SqlBulkCopyOptions.KeepIdentity)
+                SqlBulkCopy copy = new(target.Database.GetDbConnection().ConnectionString, SqlBulkCopyOptions.KeepIdentity)
                 {
                     BatchSize = 10000,
                     DestinationTableName = obj.FullName,
@@ -118,7 +118,7 @@ namespace SqlObjectCopy.DBActions
                     var elapsedSeconds = (DateTime.Now - startTime).TotalSeconds;
                     double estimate = (elapsedSeconds / args.RowsCopied) * (totalRowCount - args.RowsCopied);
 
-                    _logger.LogInformation("{Object} copied {1}/{2} rows - {3}% - eta {4}", obj.FullName, args.RowsCopied, totalRowCount, Math.Round(percentCopied, 3), new TimeSpan(0, 0, (int)estimate));
+                    _logger.LogInformation("{Object} copied {RowsCopied}/{TotalRowCount} rows - {PercentCopied}% - eta {Estimate}", obj.FullName, args.RowsCopied, totalRowCount, Math.Round(percentCopied, 3), new TimeSpan(0, 0, (int)estimate));
                 };
 
                 try
@@ -170,7 +170,7 @@ namespace SqlObjectCopy.DBActions
 
             ISocDbContext targetContext = new TargetContext(_configuration);
             IQueryable<Columns> cols = (from c in targetContext.Columns
-                        where !c.is_computed && c.object_id == objectID
+                        where !c.IsComputed && c.ObjectId == objectID
                         select c).AsNoTracking();
 
             if (cols == null)
@@ -178,13 +178,13 @@ namespace SqlObjectCopy.DBActions
                 return fallbackCommand;
             }
 
-            StringBuilder sb = new StringBuilder("SELECT ");
+            StringBuilder sb = new("SELECT ");
 
             foreach (Columns c in cols.ToList())
             {
-                sb.Append("[");
-                sb.Append(c.name);
-                sb.Append("]");
+                sb.Append('[');
+                sb.Append(c.Name);
+                sb.Append(']');
                 sb.Append(',');
             }
             sb.Append("FROM ");

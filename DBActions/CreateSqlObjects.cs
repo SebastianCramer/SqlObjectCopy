@@ -33,7 +33,7 @@ namespace SqlObjectCopy.DBActions
                 {
                     o.Valid = false;
                     o.LastException = ex;
-                    _logger.LogError(ex, "{Object} an error occured on creating object");
+                    _logger.LogError(ex, "{Object} an error occured on creating object", null);
                 }
                 
             });

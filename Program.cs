@@ -55,7 +55,7 @@ namespace SqlObjectCopy
                     }
 
                     // The action starts here
-                    DefaultPipeline pipeline = new DefaultPipeline(ServiceProvider);
+                    DefaultPipeline pipeline = new(ServiceProvider);
                     pipeline.Start(options);
 
                 })
@@ -125,7 +125,7 @@ namespace SqlObjectCopy
         {
             Console.Write("configuring services...");
 
-            ServiceCollection services = new ServiceCollection();
+            ServiceCollection services = new();
             services.AddSingleton(Configuration);
             services.AddLogging(configure => configure.AddSerilog());
             
@@ -143,7 +143,7 @@ namespace SqlObjectCopy
             services.AddScoped<CreateSchema>();
             services.AddScoped<DisplaySummary>();
 
-            SocConfiguration sconfig = new SocConfiguration();
+            SocConfiguration sconfig = new();
             new ConfigureFromConfigurationOptions<SocConfiguration>(Configuration.GetSection("SocConfiguration")).Configure(sconfig);
             services.AddSingleton(sconfig);
 

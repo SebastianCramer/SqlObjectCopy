@@ -44,7 +44,7 @@ namespace SqlObjectCopy.DBActions
         /// </summary>
         private List<SqlObject> SortObjects(List<SqlObject> obj)
         {
-            List<SqlObject> sortedResult = new List<SqlObject>();
+            List<SqlObject> sortedResult = new();
             AddDependendObjects(obj, sortedResult);
 
             return sortedResult;
@@ -67,9 +67,9 @@ namespace SqlObjectCopy.DBActions
                 string openRefs = string.Empty;
                 objectsToSort.ForEach(o => openRefs += string.Concat(o.GetReferencedObjectNames(_configuration, _scriptProvider, _logger), Environment.NewLine));
 
-                _logger.LogWarning("Iteration {0} has been reached while sorting objects. Stopping operation.", iteration);
+                _logger.LogWarning("Iteration {Iteration} has been reached while sorting objects. Stopping operation.", iteration);
                 _logger.LogWarning("This could most likely be due to referenced tables from other schemes. Please create those first. Missing references:");
-                _logger.LogWarning(openRefs);
+                _logger.LogWarning("{OpenRefs}", openRefs);
 
                 return;
             }
@@ -81,7 +81,7 @@ namespace SqlObjectCopy.DBActions
                 List<string> refs = o.GetReferencedObjectNames(_configuration, _scriptProvider, _logger);
 
                 // if this object doesn't have any references, just add it to the collection of sorted items and continue to the next
-                if (refs.Count() == 0)
+                if (refs.Count == 0)
                 {
                     sortedObjects.Add(o);
                     continue;
@@ -94,12 +94,12 @@ namespace SqlObjectCopy.DBActions
                     // check if the references are all part of the sorted list already
                     foreach (string r in refs)
                     {
-                        if (sortedObjects.Where(o => o.FullName == r).Count() == 0)
+                        if (!sortedObjects.Where(o => o.FullName == r).Any())
                         {
                             missingRefCount++;
 
                             // also check if this missing ref is part of the set at all
-                            if (objectsToSort.Where(o => o.FullName == r).Count() == 0)
+                            if (!objectsToSort.Where(o => o.FullName == r).Any())
                             {
                                 externalRefCount += 1;
                             }
@@ -115,7 +115,7 @@ namespace SqlObjectCopy.DBActions
                     else if (missingRefCount == externalRefCount) // if all missing refs are not part of the list
                     {
                         // if this is the case let the user know
-                        _logger.LogWarning("{0} has references that are not part of the object list. Program will try to create the object anyways.", o.FullName);
+                        _logger.LogWarning("{Object} has references that are not part of the object list. Program will try to create the object anyways.", o.FullName);
                         // and add the object anyways and pray
                         sortedObjects.Add(o);
                         continue;
@@ -131,7 +131,7 @@ namespace SqlObjectCopy.DBActions
             IEnumerable<SqlObject> rest = objectsToSort.Except(sortedObjects);
 
             // if there is noting left, just return
-            if (rest.Count() == 0)
+            if (!rest.Any())
             {
                 return;
             }

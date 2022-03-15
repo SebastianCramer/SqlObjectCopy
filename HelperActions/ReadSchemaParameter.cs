@@ -12,12 +12,10 @@ namespace SqlObjectCopy.HelperActions
         public IDbAction NextAction { get; set; }
 
         private readonly SocConfiguration _configuration;
-        private readonly ILogger _logger;
 
-        public ReadSchemaParameter(SocConfiguration configuration, ILogger<ReadSchemaParameter> logger)
+        public ReadSchemaParameter(SocConfiguration configuration)
         {
             _configuration = configuration;
-            _logger = logger;
         }
 
         public void Handle(List<SqlObject> objects, Options options)
@@ -32,7 +30,7 @@ namespace SqlObjectCopy.HelperActions
 
         private List<SqlObject> GetSchemaObjects (string schemaName)
         {
-            List<SqlObject> resultList = new List<SqlObject>();
+            List<SqlObject> resultList = new();
 
             using ISocDbContext sourceContext = new SourceContext(_configuration);
 

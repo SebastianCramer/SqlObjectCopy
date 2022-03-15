@@ -73,7 +73,7 @@ namespace SqlObjectCopy.Extensions
 
         public static List<string> GetReferencedObjectNames(this SqlObject obj, SocConfiguration configuration, ScriptProvider provider, ILogger logger)
         {
-            List<string> refList = new List<string>();
+            List<string> refList = new();
 
             if (obj.ObjectType == SqlObjectType.Table)
             {
@@ -108,7 +108,7 @@ namespace SqlObjectCopy.Extensions
                 catch (Exception)
                 {
                     obj.Valid = false;
-                    logger.LogWarning("{0} points to a reference that does not exist. This object will likely not complile on target and will be skipped", obj.FullName);
+                    logger.LogWarning("{Object} points to a reference that does not exist. This object will likely not complile on target and will be skipped", obj.FullName);
                 }
             }
 
@@ -117,8 +117,8 @@ namespace SqlObjectCopy.Extensions
 
         public static long SourceRowCount(this SqlObject obj, SocConfiguration configuration)
         {
-            using SourceContext sourceContext = new SourceContext(configuration);
-            SqlConnection con = new SqlConnection(sourceContext.Database.GetDbConnection().ConnectionString);
+            using SourceContext sourceContext = new(configuration);
+            SqlConnection con = new(sourceContext.Database.GetDbConnection().ConnectionString);
 
             try
             {

@@ -46,7 +46,7 @@ namespace SqlObjectCopy.DBActions
             ISocDbContext target = new TargetContext(_configuration);
             FormattableString command = FormattableStringFactory.Create("TRUNCATE TABLE {0}", obj.SafeName);
 
-            _logger.LogInformation("{Object} truncating");
+            _logger.LogInformation("{Object} truncating", obj.FullName);
             target.Database.ExecuteSqlRaw(command.ToString());
         }
     }

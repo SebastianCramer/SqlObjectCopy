@@ -28,7 +28,7 @@ namespace SqlObjectCopy.Pipelines
         {
             IDbAction latestAction = GetLatestAction(actionQueue);
 
-            if (latestAction == null || !(_serviceProvider.GetService(T) is IDbAction attachAction))
+            if (latestAction == null || _serviceProvider.GetService(T) is not IDbAction attachAction)
             {
                 throw new KeyNotFoundException("error on attaching action to queue");
             }
