@@ -28,8 +28,8 @@ namespace SqlObjectCopy.HelperActions
 
                 for (int i = 0; i < _configuration.Connections.Length; i++)
                 {
-                    _logger.LogInformation("{0}:\t{1}", i, _configuration.Connections[i].Source.ToString());
-                    _logger.LogInformation(" \t{1}", _configuration.Connections[i].Target.ToString());
+                    _logger.LogInformation("{RowNumber}:\t{Connection}", i, _configuration.Connections[i].Source.ToString());
+                    _logger.LogInformation(" \t{Connection}", _configuration.Connections[i].Target.ToString());
                     Console.WriteLine(string.Empty);
                 }
 
@@ -42,7 +42,7 @@ namespace SqlObjectCopy.HelperActions
                 else
                 {
                     _logger.LogError("there is no connection with that number");
-                    throw new ArgumentOutOfRangeException("invalid connection id chosen");
+                    throw new ArgumentOutOfRangeException(nameof(choice));
                 }
             } else if (_configuration.Connections.Length == 1) {
                 _configuration.Connections[0].Selected = true;

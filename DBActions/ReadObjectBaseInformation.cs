@@ -35,7 +35,7 @@ namespace SqlObjectCopy.DBActions
         // We're assuming that we get a bunch of sql objects with just the name and schema
         public void Handle(List<SqlObject> objects, Options options)
         {
-            foreach (SqlObject o in objects)
+            foreach (SqlObject o in objects.Where(o => o.Valid))
             {
                 try
                 {

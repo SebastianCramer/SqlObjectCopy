@@ -38,22 +38,6 @@ namespace SqlObjectCopy
                     BuildConfiguration();
                     ConfigureServices();
 
-                    // give the user output on params
-                    WriteParamInfo(options);
-
-                    if (!options.Unattended)
-                    {
-                        Log.Logger.Information("Copying with this tool potentially drops and recreates the database objects. Do you really want to do that? y/n:");
-                        ConsoleKeyInfo answer = Console.ReadKey();
-
-                        if (answer.Key != ConsoleKey.Y)
-                        {
-                            return;
-                        }
-
-                        Console.Write(Environment.NewLine);
-                    }
-
                     // The action starts here
                     DefaultPipeline pipeline = new(ServiceProvider);
                     pipeline.Start(options);
@@ -101,15 +85,6 @@ namespace SqlObjectCopy
             }
         }
 
-        private static void WriteParamInfo(Options opt)
-        {
-            if (!string.IsNullOrEmpty(opt.Schema)) { Log.Information("using schema {0}", opt.Schema); }
-            if (!string.IsNullOrEmpty(opt.ListFile)) { Log.Information("using list file at {0}", opt.ListFile); }
-            if (!string.IsNullOrEmpty(opt.ObjectName)) { Log.Information("using object {0}", opt.ObjectName); }
-            if (!string.IsNullOrEmpty(opt.DeltaColumnName)) { Log.Information("using delta transport column {0}", opt.DeltaColumnName); }
-            if (opt.Empty) { Log.Information("using empty copy"); }
-        }
-
         private static void BuildConfiguration()
         {
             Console.Write("building configuration...");
@@ -142,6 +117,8 @@ namespace SqlObjectCopy
             services.AddScoped<ReadSchemaParameter>();
             services.AddScoped<CreateSchema>();
             services.AddScoped<DisplaySummary>();
+            services.AddScoped<DisplayUsedParameters>();
+            services.AddScoped<AskSecurityQuestion>();
 
             SocConfiguration sconfig = new();
             new ConfigureFromConfigurationOptions<SocConfiguration>(Configuration.GetSection("SocConfiguration")).Configure(sconfig);
