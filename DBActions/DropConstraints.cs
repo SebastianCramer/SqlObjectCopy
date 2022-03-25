@@ -69,7 +69,7 @@ namespace SqlObjectCopy.DBActions
         }
 
         // TODO: This method in sql object extensions
-        private string GetConstraintNameFromCreationScript(string script)
+        private static string GetConstraintNameFromCreationScript(string script)
         {
             Match match = Regex.Match(script, @"CONSTRAINT \[(?'name'[\w]+)\]");
             if (match.Success)

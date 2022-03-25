@@ -26,7 +26,7 @@ namespace SqlObjectCopy.HelperActions
             NextAction?.Handle(objects, options);
         }
 
-        private ParameterFileObject[] DeserializeJson(string json) {
+        private static ParameterFileObject[] DeserializeJson(string json) {
             return System.Text.Json.JsonSerializer.Deserialize<ParameterFileObject[]>(json);
         }
 

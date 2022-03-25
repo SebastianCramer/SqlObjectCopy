@@ -41,7 +41,7 @@ namespace SqlObjectCopy.DBActions
             // skip if the empty parameter was used
             if (!options.Empty)
             {
-                List<Task> asyncTransportList = new List<Task>();
+                List<Task> asyncTransportList = new();
                 List<SqlObject> allTransports = objects.Where(o => o.Valid && o.ObjectType == SqlObjectType.Table).ToList();
 
                 // enqueue all transports that don't have references
