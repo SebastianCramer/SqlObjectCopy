@@ -22,13 +22,13 @@ namespace SqlObjectCopy.HelperActions
         {
             if (!string.IsNullOrWhiteSpace(options.Schema) && string.IsNullOrWhiteSpace(options.ObjectName) && string.IsNullOrWhiteSpace(options.ListFile))
             {
-                objects = GetSchemaObjects(options.Schema);
+                objects = GetSchemaObjects(options.Schema, options.TargetSchemaName);
             }
 
             NextAction?.Handle(objects, options);
         }
 
-        private List<SqlObject> GetSchemaObjects (string schemaName)
+        private List<SqlObject> GetSchemaObjects (string schemaName, string targetSchemaName)
         {
             List<SqlObject> resultList = new();
 
@@ -37,17 +37,17 @@ namespace SqlObjectCopy.HelperActions
             // Add tables
             resultList.AddRange((from t in sourceContext.Tables
                                  where t.TABLE_SCHEMA == schemaName
-                                 select new SqlObject(t.TABLE_SCHEMA, t.TABLE_NAME, t.TABLE_TYPE == "BASE TABLE" ? SqlObjectType.Table : SqlObjectType.View)).ToList());
+                                 select new SqlObject(t.TABLE_SCHEMA, t.TABLE_NAME, t.TABLE_TYPE == "BASE TABLE" ? SqlObjectType.Table : SqlObjectType.View, targetSchemaName, t.TABLE_NAME)).ToList());
 
             // Add procedures
             resultList.AddRange((from r in sourceContext.Routines
                                  where r.ROUTINE_SCHEMA == schemaName
-                                 select new SqlObject(r.ROUTINE_SCHEMA, r.ROUTINE_NAME, SqlObjectType.Procedure)).ToList());
+                                 select new SqlObject(r.ROUTINE_SCHEMA, r.ROUTINE_NAME, SqlObjectType.Procedure, targetSchemaName, r.ROUTINE_NAME)).ToList());
 
             // Add user defined table types
             resultList.AddRange((from d in sourceContext.Domains
                                  where d.DOMAIN_SCHEMA == schemaName
-                                 select new SqlObject(d.DOMAIN_SCHEMA, d.DOMAIN_NAME, SqlObjectType.Type)).ToList());
+                                 select new SqlObject(d.DOMAIN_SCHEMA, d.DOMAIN_NAME, SqlObjectType.Type, targetSchemaName, d.DOMAIN_NAME)).ToList());
 
             return resultList;
         }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SqlObjectCopy.Configuration;
 using SqlObjectCopy.Contexts;
@@ -16,7 +15,8 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace SqlObjectCopy.DBActions
-{    internal class TransferData : IDbAction
+{
+    internal class TransferData : IDbAction
     {
         public IDbAction NextAction { get; set; }
 
@@ -25,7 +25,7 @@ namespace SqlObjectCopy.DBActions
         private readonly ScriptProvider _scriptProvider;
 
         // for multithreading
-        readonly SemaphoreSlim throttler;
+        private readonly SemaphoreSlim throttler;
 
         public TransferData(SocConfiguration configuration, ILogger<TransferData> logger, ScriptProvider scriptProvider)
         {
@@ -41,8 +41,8 @@ namespace SqlObjectCopy.DBActions
             // skip if the empty parameter was used
             if (!options.Empty)
             {
-                var asyncTransportList = new List<Task>();
-                var allTransports = objects.Where(o => o.Valid && o.ObjectType == SqlObjectType.Table).ToList();
+                List<Task> asyncTransportList = new List<Task>();
+                List<SqlObject> allTransports = objects.Where(o => o.Valid && o.ObjectType == SqlObjectType.Table).ToList();
 
                 // enqueue all transports that don't have references
                 allTransports.Where(t => t.GetReferencedObjectNames(_configuration, _scriptProvider, _logger).Count == 0).ToList().ForEach(o =>
@@ -54,7 +54,7 @@ namespace SqlObjectCopy.DBActions
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "{Object} an error occured while transferring data", o.FullName);
+                        _logger.LogError(ex, "{Object} an error occured while transferring data", o.TargetFullName);
                         o.Valid = false;
                         o.LastException = ex;
                     }
@@ -103,35 +103,35 @@ namespace SqlObjectCopy.DBActions
                 SqlBulkCopy copy = new(target.Database.GetDbConnection().ConnectionString, SqlBulkCopyOptions.KeepIdentity)
                 {
                     BatchSize = 10000,
-                    DestinationTableName = obj.FullName,
+                    DestinationTableName = obj.TargetFullName,
                     EnableStreaming = true
                 };
 
                 // for the status updates
-                var totalRowCount = obj.SourceRowCount(_configuration);
-                var startTime = DateTime.Now;
+                long totalRowCount = obj.SourceRowCount(_configuration);
+                DateTime startTime = DateTime.Now;
 
                 copy.NotifyAfter = copy.BatchSize;
                 copy.SqlRowsCopied += delegate (object sender, SqlRowsCopiedEventArgs args)
                 {
                     float percentCopied = (float)100 / totalRowCount * args.RowsCopied;
-                    var elapsedSeconds = (DateTime.Now - startTime).TotalSeconds;
+                    double elapsedSeconds = (DateTime.Now - startTime).TotalSeconds;
                     double estimate = (elapsedSeconds / args.RowsCopied) * (totalRowCount - args.RowsCopied);
 
-                    _logger.LogInformation("{Object} copied {RowsCopied}/{TotalRowCount} rows - {PercentCopied}% - eta {Estimate}", obj.FullName, args.RowsCopied, totalRowCount, Math.Round(percentCopied, 3), new TimeSpan(0, 0, (int)estimate));
+                    _logger.LogInformation("{Object} copied {RowsCopied}/{TotalRowCount} rows - {PercentCopied}% - eta {Estimate}", obj.TargetFullName, args.RowsCopied, totalRowCount, Math.Round(percentCopied, 3), new TimeSpan(0, 0, (int)estimate));
                 };
 
                 try
                 {
                     con.Open();
                     copy.WriteToServer(scmd.ExecuteReader());
-                    _logger.LogInformation("{Object} transfer complete", obj.FullName);
+                    _logger.LogInformation("{Object} transfer complete", obj.TargetFullName);
                 }
                 catch (Exception ex)
                 {
                     obj.Valid = false;
                     obj.LastException = ex;
-                    _logger.LogError(ex, "{Object} an error occured on transferring data", obj.FullName);
+                    _logger.LogError(ex, "{Object} an error occured on transferring data", obj.TargetFullName);
                 }
                 finally
                 {
@@ -152,9 +152,11 @@ namespace SqlObjectCopy.DBActions
         {
             string fallbackCommand;
 
+            // var str = String.Format("SELECT * FROM {0} WHERE CAST({1} AS NVARCHAR) > '{2}'", obj.SafeName, obj.DeltaColumnName, obj.GetLastDeltaValue(_configuration));
+
             if (obj.IsDeltaTransport)
             {
-                fallbackCommand = FormattableStringFactory.Create("SELECT * FROM {0} WHERE {1} > {2}", obj.SafeName, obj.DeltaColumnName, obj.GetLastDeltaValue(_configuration)).ToString();
+                fallbackCommand = FormattableStringFactory.Create("SELECT * FROM {0} WHERE CAST({1} AS NVARCHAR) > {2}", obj.SafeName, obj.DeltaColumnName, obj.GetLastDeltaValue(_configuration)).ToString();
             }
             else
             {
@@ -170,8 +172,8 @@ namespace SqlObjectCopy.DBActions
 
             ISocDbContext targetContext = new TargetContext(_configuration);
             IQueryable<Columns> cols = (from c in targetContext.Columns
-                        where !c.IsComputed && c.ObjectId == objectID
-                        select c).AsNoTracking();
+                                        where !c.IsComputed && c.ObjectId == objectID
+                                        select c).AsNoTracking();
 
             if (cols == null)
             {
@@ -189,13 +191,12 @@ namespace SqlObjectCopy.DBActions
             }
             sb.Append("FROM ");
             sb.Append(obj.SafeName);
-
+            
             if (obj.IsDeltaTransport)
             {
-                sb.Append(" WHERE ");
+                sb.Append(" WHERE CAST(");
                 sb.Append(obj.DeltaColumnName);
-                sb.Append(" > ");
-                sb.Append(obj.GetLastDeltaValue(_configuration));
+                sb.Append(" AS NVARCHAR) > '" + obj.GetLastDeltaValue(_configuration).ToString() + "'");
             }
 
             // get rid of the last comma while outputting

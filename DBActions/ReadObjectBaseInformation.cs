@@ -75,7 +75,7 @@ namespace SqlObjectCopy.DBActions
             // Add tables
             SqlObject tableObject = (from t in sourceContext.Tables
                                      where t.TABLE_SCHEMA == obj.SchemaName && (obj.ObjectName == null || t.TABLE_NAME == obj.ObjectName)
-                                     select new SqlObject(t.TABLE_SCHEMA, t.TABLE_NAME, t.TABLE_TYPE == "BASE TABLE" ? SqlObjectType.Table : SqlObjectType.View)).AsNoTracking().FirstOrDefault();
+                                     select new SqlObject(t.TABLE_SCHEMA, t.TABLE_NAME, t.TABLE_TYPE == "BASE TABLE" ? SqlObjectType.Table : SqlObjectType.View, obj.TargetSchemaName, obj.TargetFullName)).AsNoTracking().FirstOrDefault();
 
             if (tableObject != null)
             {
@@ -85,7 +85,7 @@ namespace SqlObjectCopy.DBActions
             // Add procedures
             SqlObject procedureObject = (from r in sourceContext.Routines
                                          where r.ROUTINE_SCHEMA == obj.SchemaName && (obj.ObjectName == null || r.ROUTINE_NAME == obj.ObjectName)
-                                         select new SqlObject(r.ROUTINE_SCHEMA, r.ROUTINE_NAME, SqlObjectType.Procedure)).AsNoTracking().FirstOrDefault();
+                                         select new SqlObject(r.ROUTINE_SCHEMA, r.ROUTINE_NAME, SqlObjectType.Procedure, obj.TargetSchemaName, obj.TargetFullName)).AsNoTracking().FirstOrDefault();
 
             if (procedureObject != null)
             {
@@ -95,7 +95,7 @@ namespace SqlObjectCopy.DBActions
             // Add user defined table types
             return (from d in sourceContext.Domains
                     where d.DOMAIN_SCHEMA == obj.SchemaName && (obj.ObjectName == null || d.DOMAIN_NAME == obj.ObjectName)
-                    select new SqlObject(d.DOMAIN_SCHEMA, d.DOMAIN_NAME, SqlObjectType.Type)).AsNoTracking().FirstOrDefault();
+                    select new SqlObject(d.DOMAIN_SCHEMA, d.DOMAIN_NAME, SqlObjectType.Type, obj.TargetSchemaName, obj.TargetFullName)).AsNoTracking().FirstOrDefault();
         }
 
         private List<SqlObject> GetScripts(List<SqlObject> objList)
@@ -104,6 +104,11 @@ namespace SqlObjectCopy.DBActions
             {
                 SetCreateScript(o);
                 SetDeleteScript(o);
+
+                for (int i = 0; i < o.ConstraintScripts.Count; i++)
+                {
+                    o.ConstraintScripts[i] = ReplaceReferencedTable(objList, o.ConstraintScripts[i]);
+                }
             });
 
             return objList;
@@ -156,9 +161,19 @@ namespace SqlObjectCopy.DBActions
             obj.CreateScript = script;
         }
 
+        private static string ReplaceReferencedTable(List<SqlObject> objects, string foreignKeyConstraint)
+        {
+            foreach (SqlObject obj in objects)
+            {
+                foreignKeyConstraint = foreignKeyConstraint.Replace(obj.SafeName, obj.TargetSafeName);
+            }
+
+            return foreignKeyConstraint;
+        }
+
         private static void SetDeleteScript(SqlObject obj)
         {
-            obj.DeleteScript = FormattableStringFactory.Create("DROP {0} [{1}].[{2}]", obj.ObjectType.ToString(), obj.SchemaName, obj.ObjectName).ToString();
+            obj.DeleteScript = FormattableStringFactory.Create("DROP {0} {1}", obj.ObjectType.ToString(), obj.TargetSafeName).ToString();
         }
     }
 }

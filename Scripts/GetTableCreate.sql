@@ -7,7 +7,7 @@ SELECT
     , @object_id = o.[object_id]
 FROM sys.objects o WITH (NOWAIT)
 JOIN sys.schemas s WITH (NOWAIT) ON o.[schema_id] = s.[schema_id]
-WHERE s.name + '.' + o.name = '[%TableName%]'
+WHERE s.name + '.' + o.name = '[%SourceTableName%]'
     AND o.[type] = 'U'
     AND o.is_ms_shipped = 0
 
@@ -36,7 +36,7 @@ fk_columns AS
     JOIN sys.columns c WITH (NOWAIT) ON c.[object_id] = k.parent_object_id AND c.column_id = k.parent_column_id
     WHERE k.parent_object_id = @object_id
 )
-SELECT @SQL = 'CREATE TABLE ' + @object_name + CHAR(13) + '(' + CHAR(13) + STUFF((
+SELECT @SQL = 'CREATE TABLE [%TargetTableName%]' + CHAR(13) + '(' + CHAR(13) + STUFF((
     SELECT CHAR(9) + ', [' + c.name + '] ' + 
         CASE WHEN c.is_computed = 1
             THEN 'AS ' + cc.[definition] 
@@ -79,7 +79,7 @@ SELECT @SQL = 'CREATE TABLE ' + @object_name + CHAR(13) + '(' + CHAR(13) + STUFF
                 AND k.[type] = 'PK'), '') + ')'  + CHAR(13)
     + ISNULL((SELECT (
         SELECT CHAR(13) +
-             'ALTER TABLE ' + @object_name + ' WITH' 
+             'ALTER TABLE [%TargetTableName%] WITH' 
             + CASE WHEN fk.is_not_trusted = 1 
                 THEN ' NOCHECK' 
                 ELSE ' CHECK' 
@@ -110,7 +110,7 @@ SELECT @SQL = 'CREATE TABLE ' + @object_name + CHAR(13) + '(' + CHAR(13) + STUFF
                 WHEN fk.update_referential_action = 3 THEN ' ON UPDATE SET DEFAULT'  
                 ELSE '' 
               END 
-            + CHAR(13) + 'ALTER TABLE ' + @object_name + ' CHECK CONSTRAINT [' + fk.name  + ']' + CHAR(13)
+            + CHAR(13) + 'ALTER TABLE [%TargetTableName%] CHECK CONSTRAINT [' + fk.name  + ']' + CHAR(13)
         FROM sys.foreign_keys fk WITH (NOWAIT)
         JOIN sys.objects ro WITH (NOWAIT) ON ro.[object_id] = fk.referenced_object_id
         WHERE fk.parent_object_id = @object_id

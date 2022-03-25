@@ -94,12 +94,12 @@ namespace SqlObjectCopy.DBActions
                     // check if the references are all part of the sorted list already
                     foreach (string r in refs)
                     {
-                        if (!sortedObjects.Where(o => o.FullName == r).Any())
+                        if (!sortedObjects.Where(o => o.TargetFullName == r).Any())
                         {
                             missingRefCount++;
 
                             // also check if this missing ref is part of the set at all
-                            if (!objectsToSort.Where(o => o.FullName == r).Any())
+                            if (!objectsToSort.Where(o => o.TargetFullName == r).Any())
                             {
                                 externalRefCount += 1;
                             }

@@ -30,7 +30,7 @@ namespace SqlObjectCopy.Utilities
 
             if (File.Exists(Path.Combine(ScriptPath, fileName)))
             {
-                string command = File.ReadAllText(Path.Combine(ScriptPath, fileName)).Replace("[%TableName%]", Table.FullName);
+                string command = File.ReadAllText(Path.Combine(ScriptPath, fileName)).Replace("[%SourceTableName%]", Table.FullName).Replace("[%TargetTableName%]", Table.TargetFullName);
                 using ISocDbContext sourceContext = new SourceContext(_configuration);
                 return sourceContext.Scripts.FromSqlInterpolated(FormattableStringFactory.Create(command)).AsEnumerable().FirstOrDefault().CommandText;
             }
@@ -51,7 +51,7 @@ namespace SqlObjectCopy.Utilities
 
             if (File.Exists(Path.Combine(ScriptPath, fileName)))
             {
-                string command = File.ReadAllText(Path.Combine(ScriptPath, fileName)).Replace("[%ProcedureName%]", Procedure.FullName);
+                string command = File.ReadAllText(Path.Combine(ScriptPath, fileName)).Replace("[%ProcedureName%]", Procedure.TargetFullName);
 
                 using ISocDbContext sourceContext = new SourceContext(_configuration);
                 Models.Scripts obj = sourceContext.Scripts.FromSqlRaw(command).FirstOrDefault();
@@ -117,7 +117,7 @@ namespace SqlObjectCopy.Utilities
 
             if (File.Exists(Path.Combine(ScriptPath, fileName)))
             {
-                string command = File.ReadAllText(Path.Combine(ScriptPath, fileName)).Replace("[%TypeName%]", Type.FullName);
+                string command = File.ReadAllText(Path.Combine(ScriptPath, fileName)).Replace("[%TypeName%]", Type.TargetFullName);
 
                 using ISocDbContext sourceContext = new SourceContext(_configuration);
                 return sourceContext.Scripts.FromSqlInterpolated(FormattableStringFactory.Create(command)).AsEnumerable().FirstOrDefault().CommandText;

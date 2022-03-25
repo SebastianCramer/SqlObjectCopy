@@ -39,7 +39,7 @@ namespace SqlObjectCopy.DBActions
                 {
                     o.Valid = false;
                     o.LastException = ex;
-                    _logger.LogError(ex, "{Object} an error occured during dropping the object", o.FullName);
+                    _logger.LogError(ex, "{Object} an error occured during dropping the object", o.TargetFullName);
                 }
                 
             });
@@ -57,7 +57,7 @@ namespace SqlObjectCopy.DBActions
 
             if (obj.Exists(_configuration))
             {
-                _logger.LogInformation("{Object} dropping object", obj.FullName);
+                _logger.LogInformation("{Object} dropping object", obj.TargetFullName);
                 targetContext.Database.ExecuteSqlRaw(obj.DeleteScript);
             }
         }

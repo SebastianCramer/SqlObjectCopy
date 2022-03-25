@@ -35,7 +35,7 @@ namespace SqlObjectCopy.DBActions
                 {
                     o.Valid = false;
                     o.LastException = ex;
-                    _logger.LogError(ex, "{Object} an error occured on dropping constraints", o.FullName);
+                    _logger.LogError(ex, "{Object} an error occured on dropping constraints", o.TargetFullName);
                 }
             });
 
@@ -49,10 +49,10 @@ namespace SqlObjectCopy.DBActions
             obj.ConstraintScripts.ForEach(c =>
             {
                 var constraintName = GetConstraintNameFromCreationScript(c);
-                if (ConstraintExists(constraintName, obj.SchemaName))
+                if (ConstraintExists(constraintName, obj.TargetSchemaName))
                 {
-                    _logger.LogInformation("{Object} dropping constraint {0}", obj.FullName, constraintName);
-                    target.Database.ExecuteSqlRaw("ALTER TABLE " + obj.FullName + " DROP CONSTRAINT " + constraintName);
+                    _logger.LogInformation("{Object} dropping constraint {ConstraintName}", obj.TargetFullName, constraintName);
+                    target.Database.ExecuteSqlRaw("ALTER TABLE " + obj.TargetFullName + " DROP CONSTRAINT " + constraintName);
                 }
             });
         }

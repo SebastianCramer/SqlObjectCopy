@@ -55,13 +55,13 @@ namespace SqlObjectCopy.Extensions
             {
                 case SqlObjectType.Procedure:
                     result = (from r in targetContext.Routines
-                              where r.ROUTINE_NAME == obj.ObjectName && r.ROUTINE_SCHEMA == obj.SchemaName
+                              where r.ROUTINE_NAME == obj.TargetObjectName && r.ROUTINE_SCHEMA == obj.TargetSchemaName
                               select r).Count() == 1;
                     break;
                 case SqlObjectType.Table:
                 case SqlObjectType.View:
                     result = (from t in targetContext.Tables
-                              where t.TABLE_NAME == obj.ObjectName && t.TABLE_SCHEMA == obj.SchemaName
+                              where t.TABLE_NAME == obj.TargetObjectName && t.TABLE_SCHEMA == obj.TargetSchemaName
                               select t).Count() == 1;
                     break;
                 default:
@@ -127,7 +127,8 @@ namespace SqlObjectCopy.Extensions
 
                 if (obj.IsDeltaTransport)
                 {
-                    countCommand = new SqlCommand("SELECT COUNT(*) FROM " + obj.FullName + " WHERE " + obj.DeltaColumnName + " > " + obj.GetLastDeltaValue(configuration), con);
+                    var deltaValue = obj.GetLastDeltaValue(configuration);
+                    countCommand = new SqlCommand("SELECT COUNT(*) FROM " + obj.FullName + " WHERE CAST(" + obj.DeltaColumnName + " AS NVARCHAR) > '" + (string.IsNullOrWhiteSpace(deltaValue) ? Char.MinValue.ToString() : deltaValue) + "'", con);
                 } else
                 {
                     countCommand = new SqlCommand("SELECT COUNT(*) FROM " + obj.FullName, con);
@@ -155,7 +156,7 @@ namespace SqlObjectCopy.Extensions
         public static int GetObjectID(this SqlObject obj, SocConfiguration configuration)
         {
             using ISocDbContext targetContext = new TargetContext(configuration);
-            FormattableString command = FormattableStringFactory.Create("SELECT CAST(OBJECT_ID('{0}') AS NVARCHAR) AS CommandText", obj.FullName);
+            FormattableString command = FormattableStringFactory.Create("SELECT CAST(OBJECT_ID('{0}') AS NVARCHAR) AS CommandText", obj.TargetFullName);
             Scripts result = targetContext.Scripts.FromSqlRaw(command.ToString()).FirstOrDefault();
             if (int.TryParse(result.CommandText, out int objectID))
             {
@@ -180,11 +181,11 @@ namespace SqlObjectCopy.Extensions
 
             // check last delta on target system
             using ISocDbContext targetContext = new TargetContext(configuration);
-            FormattableString command = FormattableStringFactory.Create("SELECT CAST(MAX({0}) AS NVARCHAR) AS CommandText FROM {1}", obj.DeltaColumnName, obj.FullName);
+            FormattableString command = FormattableStringFactory.Create("SELECT CAST(MAX({0}) AS NVARCHAR) AS CommandText FROM {1}", obj.DeltaColumnName, obj.TargetFullName);
 
             Scripts result = targetContext.Scripts.FromSqlRaw(command.ToString()).FirstOrDefault();
 
-            return result.CommandText ?? string.Empty;
+            return result.CommandText ?? Char.MinValue.ToString();
         }
     }
 }

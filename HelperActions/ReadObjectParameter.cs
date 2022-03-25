@@ -1,12 +1,14 @@
 ﻿using SqlObjectCopy.DBActions;
-using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace SqlObjectCopy.HelperActions
 {
     internal class ReadObjectParameter : IDbAction
     {
         public IDbAction NextAction { get; set; }
+
+        private const string TARGETOBJECT_REGEX = "[\\w]+";
 
         public void Handle(List<SqlObject> objects, Options options)
         {
@@ -15,16 +17,29 @@ namespace SqlObjectCopy.HelperActions
                 string schemaName = options.ObjectName[..options.ObjectName.IndexOf('.')];
                 string objectName = options.ObjectName.Replace(schemaName + '.', string.Empty);
 
+                MatchCollection targetObjectMatches = Regex.Matches(options.TargetObjectName, TARGETOBJECT_REGEX);
+                string targetSchemaName = null;
+                string targetObjectName = null;
+
+                if (targetObjectMatches.Count == 2)
+                {
+                    targetSchemaName = targetObjectMatches[0].Value;
+                    targetObjectName = targetObjectMatches[1].Value;
+                }
+
                 if (!string.IsNullOrEmpty(schemaName) && !string.IsNullOrEmpty(objectName))
                 {
-                    var obj = new SqlObject(schemaName, objectName, SqlObjectType.Unknown)
+                    SqlObject obj = new(schemaName, objectName, SqlObjectType.Unknown, targetSchemaName, targetObjectName)
                     {
-                        DeltaColumnName = options.DeltaColumnName ?? null
+                        DeltaColumnName = options.DeltaColumnName ?? null,
+                        TargetObjectName = targetObjectName,
+                        TargetSchemaName = targetSchemaName
                     };
+
                     objects.Add(obj);
                 }
             }
-            
+
             NextAction?.Handle(objects, options);
         }
     }

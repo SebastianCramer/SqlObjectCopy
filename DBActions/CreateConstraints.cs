@@ -51,13 +51,13 @@ namespace SqlObjectCopy.DBActions
 
             if (obj.Exists(_configuration))
             {
-                _logger.LogInformation("{Object} constraint creation", obj.FullName);
+                _logger.LogInformation("{Object} constraint creation", obj.TargetFullName);
                 obj.ConstraintScripts.ForEach(c =>
                 {
                     string constName = GetConstraintNameFromCreationScript(c);
                     if (!string.IsNullOrEmpty(constName))
                     {
-                        if (!ConstraintExists(constName, obj.SchemaName))
+                        if (!ConstraintExists(constName, obj.TargetSchemaName))
                         {
                             try
                             {
@@ -65,23 +65,23 @@ namespace SqlObjectCopy.DBActions
                             }
                             catch (System.Exception ex)
                             {
-                                _logger.LogError(ex, "{Object} An error occured while creating the constraint {0}", obj.FullName ,constName);
+                                _logger.LogError(ex, "{Object} An error occured while creating the constraint {ConstraintName}", obj.TargetFullName ,constName);
                             }
                         }
                         else
                         {
-                            _logger.LogWarning("{Object} constraint {0} does already exist on target. skipping creation.", obj.FullName ,constName);
+                            _logger.LogWarning("{Object} constraint {ConstraintName} does already exist on target. skipping creation.", obj.TargetFullName ,constName);
                         }
                     }
                     else
                     {
-                        _logger.LogWarning("{Object} could not create constraint. Please check afterwards", obj.FullName);
+                        _logger.LogWarning("{Object} could not create constraint. Please check afterwards", obj.TargetFullName);
                     }
                 });
             }
         }
 
-        private string GetConstraintNameFromCreationScript(string script)
+        private static string GetConstraintNameFromCreationScript(string script)
         {
             Match match = Regex.Match(script, @"CONSTRAINT \[(?'name'[\w]+)\]");
             if (match.Success)

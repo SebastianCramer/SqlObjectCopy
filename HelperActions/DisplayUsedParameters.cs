@@ -37,6 +37,7 @@ namespace SqlObjectCopy.HelperActions
             if (!string.IsNullOrEmpty(options.ObjectName)) { logger.LogInformation("using object {Object}", options.ObjectName); }
             if (!string.IsNullOrEmpty(options.DeltaColumnName)) { logger.LogInformation("using delta transport column {DeltaColumn}", options.DeltaColumnName); }
             if (options.Empty) { logger.LogInformation("using empty copy"); }
+            if (!string.IsNullOrEmpty(options.TargetObjectName)) { logger.LogInformation("using target object name {TargetObject}", options.TargetObjectName); }
 
             NextAction?.Handle(objects, options);
         }

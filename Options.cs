@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using System.Text.RegularExpressions;
 
 namespace SqlObjectCopy
 {
@@ -19,7 +20,12 @@ namespace SqlObjectCopy
         [Option('d', "delta", Required = false, HelpText = "DeltaColumn name for delta data transport")]
         public string DeltaColumnName { get; set; }
         
-        [Option('u', "unattended", Required = false, HelpText = "Unattended mode. Skips deletion dialog.")]
+        [Option('u', "unattended", Required = false, HelpText = "Unattended mode. Skips deletion dialog")]
         public bool Unattended { get; set; }
+
+        [Option('t', "targetobjectname", Required = false, HelpText = "Target object name. Use when target object schema or name differs from source")]
+        public string TargetObjectName { get; set; }
+
+        public string TargetSchemaName => Regex.Match(TargetObjectName, "^[\\w]+.").Value;
     }
 }

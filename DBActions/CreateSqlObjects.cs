@@ -24,7 +24,7 @@ namespace SqlObjectCopy.DBActions
 
         public void Handle(List<SqlObject> objects, Options options)
         {
-            objects.Where(o => o.Valid && !o.IsDeltaTransport).ToList().ForEach(o => {
+            objects.Where(o => o.Valid).ToList().ForEach(o => {
                 try
                 {
                     CreateTargetObjectIfNotExists(o);
@@ -55,13 +55,13 @@ namespace SqlObjectCopy.DBActions
             {
                 try
                 {
-                    _logger.LogInformation("{Object} creating object", obj.FullName);
+                    _logger.LogInformation("{Object} creating object", obj.TargetFullName);
                     target.Database.ExecuteSqlRaw(obj.CreateScript);
                     return true;
                 }
                 catch (System.Exception ex)
                 {
-                    _logger.LogWarning("{Object} could not be created. there are probably referenced objects missing in the target database", obj.FullName);
+                    _logger.LogWarning("{Object} could not be created. there are probably referenced objects missing in the target database", obj.TargetFullName);
                     obj.Valid = false;
                     obj.LastException = ex;
                     return true;

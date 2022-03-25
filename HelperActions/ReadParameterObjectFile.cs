@@ -1,7 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using SqlObjectCopy.Configuration;
-using SqlObjectCopy.DBActions;
+﻿using SqlObjectCopy.DBActions;
+using SqlObjectCopy.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,81 +12,51 @@ namespace SqlObjectCopy.HelperActions
         public IDbAction NextAction { get; set; }
 
         private const string REGEX_SQL_OBJECT = @"^(?'schema'[A-Za-z0-9]+)\.(?'object'[A-Za-z0-9_]+)";
-        private const string REGEX_DELTA_COLUMN = @"\t(?'column'[A-Za-z0-9]+$)";
 
         public void Handle(List<SqlObject> objects, Options options)
         {
             if (!string.IsNullOrWhiteSpace(options.ListFile))
             {
-                FileInfo info = new(options.ListFile);
-                objects = GetSqlObjects(info);
+                FileInfo info = new(options.ListFile); 
+                var parameters = DeserializeJson(File.ReadAllText(info.FullName));
+
+                objects = GetSqlObjects(parameters);
             }
 
             NextAction?.Handle(objects, options);
         }
 
-        /// <summary>
-        /// Gets a list of SQL objects from a textfile
-        /// </summary>
-        /// <param name="file">The File to read from</param>
-        /// <returns>A list of SQL objects from the file</returns>
-        public static List<SqlObject> GetSqlObjects(FileInfo file)
-        {
-            if (file == null)
-            {
-                throw new ArgumentNullException(nameof(file));
-            }
-
-            if (!file.Exists)
-            {
-                throw new ArgumentException("file not found");
-            }
-
-            // the output list
-            List<SqlObject> objectList = new();
-
-            // to find schema and name in regex groups
-            Regex objectRegex = new(REGEX_SQL_OBJECT);
-            // to find delta columns
-            Regex deltaRegex = new(REGEX_DELTA_COLUMN);
-
-
-            foreach (string s in ReadObjectListFile(file))
-            {
-                // empty lines
-                if (string.IsNullOrEmpty(s))
-                {
-                    continue;
-                }
-
-                string schema = objectRegex.Match(s).Groups["schema"].Value;
-                string name = objectRegex.Match(s).Groups["object"].Value;
-
-                if (string.IsNullOrEmpty(schema) && string.IsNullOrEmpty(name))
-                {
-                    throw new ArgumentException("schema or name not found in source file");
-                }
-
-                // The sql object to add
-                SqlObject obj = new(schema, name, SqlObjectType.Unknown);
-
-                // add a delta column name if one is given in the file
-                string deltaColumn = deltaRegex.Match(s).Groups["column"].Value;
-                if (!string.IsNullOrEmpty(deltaColumn))
-                {
-                    obj.DeltaColumnName = deltaColumn;
-                }
-
-                objectList.Add(obj);
-            }
-
-            return objectList;
+        private ParameterFileObject[] DeserializeJson(string json) {
+            return System.Text.Json.JsonSerializer.Deserialize<ParameterFileObject[]>(json);
         }
 
-        private static string[] ReadObjectListFile(FileInfo listFile)
+        private static List<SqlObject> GetSqlObjects(ParameterFileObject[] parameters)
         {
-            string content = File.ReadAllText(listFile.FullName);
-            return content.Split(Environment.NewLine);
+            List<SqlObject> sqlObjects = new();
+
+            foreach (var parameter in parameters)
+            {
+                if (parameter.SourceObject == null || string.IsNullOrWhiteSpace(parameter.SourceObject))
+                {
+                    throw new ArgumentException("source schema or name missing for at least one parameter");
+                }
+
+                var sourceObjectMatches = new Regex(REGEX_SQL_OBJECT).Matches(parameter.SourceObject)[0];
+                var targetObjectMatches = new Regex(REGEX_SQL_OBJECT).Matches(parameter.TargetObject ?? parameter.SourceObject)[0];
+
+                var obj = new SqlObject(sourceObjectMatches.Groups["schema"].Value, sourceObjectMatches.Groups["object"].Value,
+                    SqlObjectType.Unknown,
+                    targetObjectMatches.Groups["schema"].Value, targetObjectMatches.Groups["object"].Value);
+
+                if (parameter.DeltaColumn != null && !string.IsNullOrWhiteSpace(parameter.DeltaColumn))
+                {
+                    obj.DeltaColumnName = parameter.DeltaColumn;
+                }
+
+                sqlObjects.Add(obj);
+            }
+
+            return sqlObjects;
         }
     }
 }

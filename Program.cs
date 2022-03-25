@@ -10,15 +10,16 @@ using SqlObjectCopy.Pipelines;
 using SqlObjectCopy.Utilities;
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace SqlObjectCopy
 {
-    class Program
+    internal class Program
     {
         public static IConfiguration Configuration;
         public static IServiceProvider ServiceProvider;
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             // show super fancy intro screen
             ShowIntro();
@@ -71,6 +72,16 @@ namespace SqlObjectCopy
                 Console.WriteLine("Cloning of sys schema not allowed because it contains system objects. \r\n Please use an objectlist for cloning sys objects.");
                 return false;
             }
+            else if (options.TargetObjectName != null && Regex.IsMatch(options.TargetObjectName, "[.]") && !string.IsNullOrEmpty(options.Schema))
+            {
+                Console.WriteLine("Cannot use full target object name when just cloning a schema. \r\n Please enter just the schemaname for -t");
+                return false;
+            }
+            else if (!string.IsNullOrEmpty(options.ListFile) && !string.IsNullOrEmpty(options.TargetObjectName))
+            {
+                Console.WriteLine("Cannot use target object name when copying with a list file");
+                return false;
+            }
 
 
             return true;
@@ -103,7 +114,7 @@ namespace SqlObjectCopy
             ServiceCollection services = new();
             services.AddSingleton(Configuration);
             services.AddLogging(configure => configure.AddSerilog());
-            
+
             services.AddScoped<ReadParameterObjectFile>();
             services.AddScoped<ScriptProvider>();
             services.AddScoped<ReadObjectBaseInformation>();

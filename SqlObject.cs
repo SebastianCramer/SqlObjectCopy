@@ -14,6 +14,10 @@ namespace SqlObjectCopy
         public string FullName => SchemaName + "." + ObjectName;
         public SqlObjectType ObjectType { get; set; }
 
+        public string TargetSchemaName { get; set; }
+        public string TargetObjectName { get; set; }
+        public string TargetSafeName => "[" + TargetSchemaName + "].[" + TargetObjectName + "]";
+        public string TargetFullName => TargetSchemaName + "." + TargetObjectName;
 
         /// <summary>
         /// Delta logic
@@ -52,7 +56,7 @@ namespace SqlObjectCopy
         /// <param name="schemaName"></param>
         /// <param name="objectName"></param>
         /// <param name="type"></param>
-        public SqlObject(string schemaName, string objectName, SqlObjectType type)
+        public SqlObject(string schemaName, string objectName, SqlObjectType type, string targetSchemaName, string targetObjectName)
         {
             if (string.IsNullOrEmpty(schemaName) && string.IsNullOrEmpty(objectName))
             {
@@ -63,6 +67,8 @@ namespace SqlObjectCopy
             ObjectName = objectName;
             ObjectType = type;
             Valid = true;
+            TargetSchemaName = targetSchemaName ?? schemaName;
+            TargetObjectName = targetObjectName ?? objectName;
         }
     }
 }

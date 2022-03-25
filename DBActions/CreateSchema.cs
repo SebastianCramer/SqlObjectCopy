@@ -25,18 +25,14 @@ namespace SqlObjectCopy.DBActions
 
         public void Handle(List<SqlObject> objects, Options options)
         {
-            if (!string.IsNullOrEmpty(options.Schema))
+            IEnumerable<string> targetSchemas = (from o in objects
+                                                 select o.TargetSchemaName).Distinct();
+
+            // get all schemas from object list
+            objects.Select(o => o.TargetSchemaName).Distinct().ToList().ForEach(o =>
             {
-                CreateSchemaIfNotExists(options.Schema);
-            }
-            else
-            {
-                // get all schemas from object list
-                objects.Select(o => o.SchemaName).Distinct().ToList().ForEach(o =>
-                {
-                    CreateSchemaIfNotExists(o);
-                });
-            }
+                CreateSchemaIfNotExists(o);
+            });
 
             NextAction?.Handle(objects, options);
         }
@@ -46,8 +42,8 @@ namespace SqlObjectCopy.DBActions
             using ISocDbContext targetContext = new TargetContext(_configuration);
 
             Models.Schemata targetSchema = (from s in targetContext.Schemata
-                                where s.SCHEMA_NAME == schemaName
-                                select s).AsNoTracking().FirstOrDefault();
+                                            where s.SCHEMA_NAME == schemaName
+                                            select s).AsNoTracking().FirstOrDefault();
 
             if (targetSchema == null)
             {

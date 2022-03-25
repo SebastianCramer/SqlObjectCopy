@@ -23,6 +23,7 @@ It can do this using
 
 Transports dependencies in the right order to prevent missing-key data.
 Has delta support if the data supports it.
+Can use differing schema/object names in the target system.
 Transports in N threads where possible.
 
 It is configurable through a appsettings.json configuration file.
@@ -46,22 +47,30 @@ In this example, iqs schema is the one we want to copy.
 ```
 soc.exe [options]
 
-  -s, --schema    The Schema to be copied to the test system
-  -l, --list            Full path to a txt file containing the full names of objects to copy
-  -o, --object     Single file to be copied to the test system
-  -e, --empty     Copy tables without content
-  -d, --delta       DeltaColumn name for delta data transport
-  --help             Display this help screen.
-  --version        Display version information.
+  -s, --schema              The Schema to be copied to the test system
+  -l, --list                Full path to a json file containing the full information of objects to copy
+  -o, --object              Single file to be copied to the test system
+  -e, --empty               Copy tables without content
+  -d, --delta               DeltaColumn name for delta data transport
+  -t, --targetobjectname    Target schema or schema.object name to use.
+  --help                    Display this help screen.
+  --version                 Display version information.
 ```
 
 ## List file
-For the parameter `-l, --list` the list file has to contain the full object name 
-> [schema].[objectname].
-
-If a delta column needs to be defined add a tab and write the column name after the object name like so:
-
-> [schema].[object] *TAB* DeltaColumnName
+For the parameter `-l, --list` the list file has to contain the full object information in json syntax. 
+```json
+[
+	{
+		"SourceObject": "dbo.testtable",
+		"TargetObject": "tst.testtable2",
+		"DeltaColumn": "ID"
+	}
+]
+```
+The only mandatory field is `SourceObject`.
+The other attributes can be removed when not used.
+Since the root object is an array, you can add multiple objects in this file, each with it's own configuration attributes.
 
 ## Delta transfer
 The SOC supports delta transfers. This means that it scans for the latest data in the target system and uses the defined key to get only new data and insert it.
