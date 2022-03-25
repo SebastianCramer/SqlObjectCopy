@@ -47,14 +47,14 @@ In this example, iqs schema is the one we want to copy.
 ```
 soc.exe [options]
 
-  -s, --schema              The Schema to be copied to the test system
-  -l, --list                Full path to a json file containing the full information of objects to copy
-  -o, --object              Single file to be copied to the test system
-  -e, --empty               Copy tables without content
-  -d, --delta               DeltaColumn name for delta data transport
-  -t, --targetobjectname    Target schema or schema.object name to use.
-  --help                    Display this help screen.
-  --version                 Display version information.
+  -s, --schema			The Schema to be copied to the test system
+  -l, --list			Full path to a json file containing the full information of objects to copy
+  -o, --object			Single file to be copied to the test system
+  -e, --empty			Copy tables without content
+  -d, --delta			DeltaColumn name for delta data transport
+  -t, --targetobjectname	Target schema or schema.object name to use.
+  --help			Display this help screen.
+  --version			Display version information.
 ```
 
 ## List file
