@@ -11,18 +11,18 @@ namespace SqlObjectCopy.HelperActions
     {
         public IDbAction NextAction { get; set; }
 
-        private readonly SocConfiguration _configuration;
+        private readonly SocConfiguration configuration;
 
         public ReadSchemaParameter(SocConfiguration configuration)
         {
-            _configuration = configuration;
+            this.configuration = configuration;
         }
 
         public void Handle(List<SqlObject> objects, Options options)
         {
-            if (!string.IsNullOrWhiteSpace(options.Schema) && string.IsNullOrWhiteSpace(options.ObjectName) && string.IsNullOrWhiteSpace(options.ListFile))
+            if (!string.IsNullOrWhiteSpace(options.SourceSchema) && string.IsNullOrWhiteSpace(options.SourceObjectFullName) && string.IsNullOrWhiteSpace(options.ListFile))
             {
-                objects = GetSchemaObjects(options.Schema, options.TargetSchemaName);
+                objects = GetSchemaObjects(options.SourceSchema, options.TargetSchemaName);
             }
 
             NextAction?.Handle(objects, options);
@@ -32,7 +32,7 @@ namespace SqlObjectCopy.HelperActions
         {
             List<SqlObject> resultList = new();
 
-            using ISocDbContext sourceContext = new SourceContext(_configuration);
+            using ISocDbContext sourceContext = new SourceContext(configuration);
 
             // Add tables
             resultList.AddRange((from t in sourceContext.Tables

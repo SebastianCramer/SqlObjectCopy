@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using SqlObjectCopy.Configuration;
 using SqlObjectCopy.Contexts;
 using SqlObjectCopy.Utilities;
+using SqlObjectCopy.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,8 +41,17 @@ namespace SqlObjectCopy.DBActions
                 try
                 {
                     _logger.LogInformation("{Object} reading base information", o.FullName);
-                    SqlObject readObject = GetObjectIdentification(o);
-                    o.ObjectType = readObject.ObjectType;
+                    if (!o.Exists(_configuration))
+                    {
+                        o.Valid = false;
+                        o.LastException = new KeyNotFoundException($"{o.FullName} does not exist or you don't have permission");
+                        _logger.LogError("{Object} does not exist or you don't have permission", o.FullName);
+                    }
+                    else
+                    {
+                        SqlObject readObject = GetObjectIdentification(o);
+                        o.ObjectType = readObject.ObjectType;
+                    }
                 }
                 catch (Exception ex)
                 {

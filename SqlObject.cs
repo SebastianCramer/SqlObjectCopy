@@ -58,10 +58,8 @@ namespace SqlObjectCopy
         /// <param name="type"></param>
         public SqlObject(string schemaName, string objectName, SqlObjectType type, string targetSchemaName, string targetObjectName)
         {
-            if (string.IsNullOrEmpty(schemaName) && string.IsNullOrEmpty(objectName))
-            {
-                throw new ArgumentNullException("schemaname or objectname");
-            }
+            _ = schemaName ?? throw new ArgumentNullException(nameof(schemaName));
+            _ = objectName ?? throw new ArgumentNullException(nameof(objectName));
 
             SchemaName = schemaName;
             ObjectName = objectName;

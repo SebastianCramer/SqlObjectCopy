@@ -32,12 +32,12 @@ namespace SqlObjectCopy.HelperActions
                 logger.LogInformation("using target {TargetConnection}", connection.Target);
             }
 
-            if (!string.IsNullOrEmpty(options.Schema)) { logger.LogInformation("using schema {Schema}", options.Schema); }
+            if (!string.IsNullOrEmpty(options.SourceSchema)) { logger.LogInformation("using schema {Schema}", options.SourceSchema); }
             if (!string.IsNullOrEmpty(options.ListFile)) { logger.LogInformation("using list file at {ListFilePath}", options.ListFile); }
-            if (!string.IsNullOrEmpty(options.ObjectName)) { logger.LogInformation("using object {Object}", options.ObjectName); }
+            if (!string.IsNullOrEmpty(options.SourceObjectFullName)) { logger.LogInformation("using object {Object}", options.SourceObjectFullName); }
             if (!string.IsNullOrEmpty(options.DeltaColumnName)) { logger.LogInformation("using delta transport column {DeltaColumn}", options.DeltaColumnName); }
             if (options.Empty) { logger.LogInformation("using empty copy"); }
-            if (!string.IsNullOrEmpty(options.TargetObjectName)) { logger.LogInformation("using target object name {TargetObject}", options.TargetObjectName); }
+            if (!string.IsNullOrEmpty(options.TargetObjectFullName)) { logger.LogInformation("using target object name {TargetObject}", options.TargetObjectFullName); }
 
             NextAction?.Handle(objects, options);
         }

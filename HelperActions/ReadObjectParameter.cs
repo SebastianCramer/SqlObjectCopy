@@ -1,6 +1,6 @@
-﻿using SqlObjectCopy.DBActions;
+﻿using Microsoft.Extensions.Logging;
+using SqlObjectCopy.DBActions;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace SqlObjectCopy.HelperActions
 {
@@ -8,35 +8,40 @@ namespace SqlObjectCopy.HelperActions
     {
         public IDbAction NextAction { get; set; }
 
-        private const string TARGETOBJECT_REGEX = "[\\w]+";
+        private readonly ILogger logger;
+
+        public ReadObjectParameter(ILogger<ReadObjectParameter> logger)
+        {
+            this.logger = logger;
+        }
 
         public void Handle(List<SqlObject> objects, Options options)
         {
-            if (!string.IsNullOrEmpty(options.ObjectName))
+            if (!string.IsNullOrEmpty(options.SourceObjectFullName))
             {
-                string schemaName = options.ObjectName[..options.ObjectName.IndexOf('.')];
-                string objectName = options.ObjectName.Replace(schemaName + '.', string.Empty);
+                string schemaName = options.SourceSchemaName;
+                string objectName = options.SourceObjectName;
 
-                MatchCollection targetObjectMatches = Regex.Matches(options.TargetObjectName, TARGETOBJECT_REGEX);
-                string targetSchemaName = null;
-                string targetObjectName = null;
-
-                if (targetObjectMatches.Count == 2)
+                if (string.IsNullOrWhiteSpace(schemaName) || string.IsNullOrWhiteSpace(objectName))
                 {
-                    targetSchemaName = targetObjectMatches[0].Value;
-                    targetObjectName = targetObjectMatches[1].Value;
+                    logger.LogError("Invalid object parameter. Must contain schema.Name");
                 }
-
-                if (!string.IsNullOrEmpty(schemaName) && !string.IsNullOrEmpty(objectName))
+                else
                 {
-                    SqlObject obj = new(schemaName, objectName, SqlObjectType.Unknown, targetSchemaName, targetObjectName)
-                    {
-                        DeltaColumnName = options.DeltaColumnName ?? null,
-                        TargetObjectName = targetObjectName,
-                        TargetSchemaName = targetSchemaName
-                    };
+                    string targetSchemaName = options.TargetSchemaName;
+                    string targetObjectName = options.TargetObjectName;
 
-                    objects.Add(obj);
+                    if (!string.IsNullOrEmpty(schemaName) && !string.IsNullOrEmpty(objectName))
+                    {
+                        SqlObject obj = new(schemaName, objectName, SqlObjectType.Unknown, targetSchemaName, targetObjectName)
+                        {
+                            DeltaColumnName = options.DeltaColumnName ?? null,
+                            TargetObjectName = targetObjectName,
+                            TargetSchemaName = targetSchemaName
+                        };
+
+                        objects.Add(obj);
+                    }
                 }
             }
 

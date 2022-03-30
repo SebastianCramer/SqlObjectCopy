@@ -6,13 +6,13 @@ namespace SqlObjectCopy
     public class Options
     {
         [Option('s', "schema", Required = false, HelpText = "The Schema to be copied to the test system")]
-        public string Schema { get; set; }
+        public string SourceSchema { get; set; }
 
         [Option('l', "list", Required = false, HelpText = "Full path to a txt file containing the full names of objects to copy")]
         public string ListFile { get; set; }
 
         [Option('o', "object", Required = false, HelpText = "Single file to be copied to the test system")]
-        public string ObjectName { get; set; }
+        public string SourceObjectFullName { get; set; }
 
         [Option('e', "empty", Required = false, HelpText = "Copy tables without content")]
         public bool Empty { get; set; }
@@ -24,8 +24,13 @@ namespace SqlObjectCopy
         public bool Unattended { get; set; }
 
         [Option('t', "targetobjectname", Required = false, HelpText = "Target object name. Use when target object schema or name differs from source")]
-        public string TargetObjectName { get; set; }
+        public string TargetObjectFullName { get; set; }
 
-        public string TargetSchemaName => Regex.Match(TargetObjectName, "^[\\w]+.").Value;
+        // parsing stuff
+        public string SourceObjectName => Regex.Match(SourceObjectFullName, "\\.[\\w]+$").Value;
+        public string SourceSchemaName => Regex.Match(SourceObjectFullName, "^[\\w]+\\.").Value;
+
+        public string TargetObjectName => Regex.Match(TargetObjectFullName ?? string.Empty, "\\.[\\w]+$").Value;
+        public string TargetSchemaName => Regex.Match(TargetObjectFullName ?? string.Empty, "^[\\w]+\\.").Value;
     }
 }

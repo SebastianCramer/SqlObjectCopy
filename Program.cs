@@ -57,27 +57,27 @@ namespace SqlObjectCopy
 
         private static bool OptionsValid(Options options)
         {
-            if (string.IsNullOrEmpty(options.Schema) && string.IsNullOrEmpty(options.ListFile) && string.IsNullOrEmpty(options.ObjectName))
+            if (string.IsNullOrEmpty(options.SourceSchema) && string.IsNullOrEmpty(options.ListFile) && string.IsNullOrEmpty(options.SourceObjectFullName))
             {
                 Console.WriteLine("No arguments found, please use --help to see what arguments you can use.");
                 return false;
             }
-            else if (!string.IsNullOrEmpty(options.Schema) && options.Schema == "dbo")
+            else if (!string.IsNullOrEmpty(options.SourceSchema) && options.SourceSchema == "dbo")
             {
                 Console.WriteLine("Cloning of dbo schema not allowed because it contains system objects. \r\n Please use an objectlist for cloning dbo objects.");
                 return false;
             }
-            else if (!string.IsNullOrEmpty(options.Schema) && options.Schema == "sys")
+            else if (!string.IsNullOrEmpty(options.SourceSchema) && options.SourceSchema == "sys")
             {
                 Console.WriteLine("Cloning of sys schema not allowed because it contains system objects. \r\n Please use an objectlist for cloning sys objects.");
                 return false;
             }
-            else if (options.TargetObjectName != null && Regex.IsMatch(options.TargetObjectName, "[.]") && !string.IsNullOrEmpty(options.Schema))
+            else if (options.TargetObjectFullName != null && Regex.IsMatch(options.TargetObjectFullName, "[.]") && !string.IsNullOrEmpty(options.SourceSchema))
             {
                 Console.WriteLine("Cannot use full target object name when just cloning a schema. \r\n Please enter just the schemaname for -t");
                 return false;
             }
-            else if (!string.IsNullOrEmpty(options.ListFile) && !string.IsNullOrEmpty(options.TargetObjectName))
+            else if (!string.IsNullOrEmpty(options.ListFile) && !string.IsNullOrEmpty(options.TargetObjectFullName))
             {
                 Console.WriteLine("Cannot use target object name when copying with a list file");
                 return false;
