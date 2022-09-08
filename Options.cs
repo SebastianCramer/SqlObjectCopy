@@ -27,10 +27,10 @@ namespace SqlObjectCopy
         public string TargetObjectFullName { get; set; }
 
         // parsing stuff
-        public string SourceObjectName => Regex.Match(SourceObjectFullName, "\\.[\\w]+$").Value;
-        public string SourceSchemaName => Regex.Match(SourceObjectFullName, "^[\\w]+\\.").Value;
+        public string SourceObjectName => Regex.Match(SourceObjectFullName, "\\.(?'objectName'[\\w]+$)").Groups["objectName"].Value;
+        public string SourceSchemaName => Regex.Match(SourceObjectFullName, "(?'schemaName'^[\\w]+)\\.").Groups["schemaName"].Value;
 
-        public string TargetObjectName => Regex.Match(TargetObjectFullName ?? string.Empty, "\\.[\\w]+$").Value;
-        public string TargetSchemaName => Regex.Match(TargetObjectFullName ?? string.Empty, "^[\\w]+\\.").Value;
+        public string TargetObjectName => Regex.Match(TargetObjectFullName ?? string.Empty, "\\.(?'objectName'[\\w]+$)").Groups["objectName"].Value;
+        public string TargetSchemaName => Regex.Match(TargetObjectFullName ?? string.Empty, "(?'schemaName'^[\\w]+)\\.").Groups["schemaName"].Value;
     }
 }
