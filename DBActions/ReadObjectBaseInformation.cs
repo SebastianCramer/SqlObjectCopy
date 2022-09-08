@@ -41,17 +41,20 @@ namespace SqlObjectCopy.DBActions
                 try
                 {
                     _logger.LogInformation("{Object} reading base information", o.FullName);
-                    if (!o.Exists(_configuration))
-                    {
-                        o.Valid = false;
-                        o.LastException = new KeyNotFoundException($"{o.FullName} does not exist or you don't have permission");
-                        _logger.LogError("{Object} does not exist or you don't have permission", o.FullName);
-                    }
-                    else
+
+                    if (o.ObjectType == SqlObjectType.Unknown)
                     {
                         SqlObject readObject = GetObjectIdentification(o);
                         o.ObjectType = readObject.ObjectType;
                     }
+
+                    // this exist check if for TARGETS
+                    //if (!o.Exists(_configuration))
+                    //{
+                    //    o.Valid = false;
+                    //    o.LastException = new KeyNotFoundException($"{o.FullName} does not exist or you don't have permission");
+                    //    _logger.LogError("{Object} does not exist or you don't have permission", o.FullName);
+                    //}
                 }
                 catch (Exception ex)
                 {

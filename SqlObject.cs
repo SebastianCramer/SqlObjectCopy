@@ -5,6 +5,8 @@ namespace SqlObjectCopy
 {
     public class SqlObject
     {
+        private string targetSchemaName;
+        private string targetObjectName;
 
         /// <summary>
         /// Basics
@@ -14,8 +16,8 @@ namespace SqlObjectCopy
         public string FullName => SchemaName + "." + ObjectName;
         public SqlObjectType ObjectType { get; set; }
 
-        public string TargetSchemaName { get; set; }
-        public string TargetObjectName { get; set; }
+        public string TargetSchemaName { get => string.IsNullOrEmpty(targetSchemaName) ? SchemaName : targetSchemaName; set => targetSchemaName = value; }
+        public string TargetObjectName { get => string.IsNullOrEmpty(targetObjectName) ? ObjectName : targetObjectName; set => targetObjectName = value; }
         public string TargetSafeName => "[" + TargetSchemaName + "].[" + TargetObjectName + "]";
         public string TargetFullName => TargetSchemaName + "." + TargetObjectName;
 
@@ -32,7 +34,7 @@ namespace SqlObjectCopy
         /// The save name with [] for reserved SQL keyword protection
         /// </summary>
         public string SafeName => "[" + SchemaName + "].[" + ObjectName + "]";
-        
+
         /// <summary>
         /// False if this object had some errors and is not valid anymore
         /// </summary>

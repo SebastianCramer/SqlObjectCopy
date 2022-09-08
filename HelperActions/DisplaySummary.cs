@@ -26,7 +26,7 @@ namespace SqlObjectCopy.HelperActions
 
             foreach (SqlObject o in objects.Where(o => !o.Valid))
             {
-                logger.LogInformation("{Object} had error: {Error}", o.FullName, o.LastException.ToString());
+                logger.LogInformation("{Object} had error: {Error}", o.FullName, o.LastException?.ToString());
             }
 
             NextAction?.Handle(objects, options);
