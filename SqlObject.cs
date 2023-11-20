@@ -29,6 +29,8 @@ namespace SqlObjectCopy
         // TODO: is this a extension?
         public bool IsDeltaTransport => !string.IsNullOrWhiteSpace(DeltaColumnName) && ObjectType == SqlObjectType.Table;
         public string LastDeltaValue { get; set; }
+        // the type of the delta value column
+        public string DeltaColumnType { get; set; }
 
         /// <summary>
         /// The save name with [] for reserved SQL keyword protection

@@ -54,7 +54,7 @@ namespace SqlObjectCopy.Utilities
                 string command = File.ReadAllText(Path.Combine(ScriptPath, fileName)).Replace("[%ProcedureName%]", Procedure.TargetFullName);
 
                 using ISocDbContext sourceContext = new SourceContext(_configuration);
-                Models.Scripts obj = sourceContext.Scripts.FromSqlRaw(command).FirstOrDefault();
+                Models.Script obj = sourceContext.Scripts.FromSqlRaw(command).FirstOrDefault();
                 if (obj != null) {
                     return obj.CommandText;
                 } else

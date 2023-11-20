@@ -1,6 +1,6 @@
 ﻿namespace SqlObjectCopy.Models
 {
-    public class Tables
+    public class Table
     {
         public string TABLE_CATALOG { get; set; }
         public string TABLE_SCHEMA { get; set; }

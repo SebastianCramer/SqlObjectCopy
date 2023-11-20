@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using SqlObjectCopy.Configuration;
 using SqlObjectCopy.Contexts;
 using SqlObjectCopy.Utilities;
-using SqlObjectCopy.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +25,8 @@ namespace SqlObjectCopy.DBActions
 
         private readonly string CONSTRAINT_PATTERN = @"ALTER TABLE [\[\].\w]+ WITH CHECK ADD CONSTRAINT [\[\]\w. ()]+";
 
-        public ReadObjectBaseInformation(SocConfiguration configuration, ScriptProvider scriptProvider, ILogger<ReadObjectBaseInformation> logger)
+        public ReadObjectBaseInformation(SocConfiguration configuration, ScriptProvider scriptProvider, 
+            ILogger<ReadObjectBaseInformation> logger)
         {
             _configuration = configuration;
             _scriptProvider = scriptProvider;
@@ -48,13 +48,10 @@ namespace SqlObjectCopy.DBActions
                         o.ObjectType = readObject.ObjectType;
                     }
 
-                    // this exist check if for TARGETS
-                    //if (!o.Exists(_configuration))
-                    //{
-                    //    o.Valid = false;
-                    //    o.LastException = new KeyNotFoundException($"{o.FullName} does not exist or you don't have permission");
-                    //    _logger.LogError("{Object} does not exist or you don't have permission", o.FullName);
-                    //}
+                    if (o.ObjectType == SqlObjectType.Table)
+                    {
+                        o.DeltaColumnType = this.GetDeltaColumnType(o);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -64,7 +61,7 @@ namespace SqlObjectCopy.DBActions
                 }
             }
 
-            // if there are any valid objcts, proceed
+            // if there are any valid objects, proceed
             if (objects.Where(o => o.Valid).Any())
             {
                 objects = GetScripts(objects);
@@ -187,6 +184,14 @@ namespace SqlObjectCopy.DBActions
         private static void SetDeleteScript(SqlObject obj)
         {
             obj.DeleteScript = FormattableStringFactory.Create("DROP {0} {1}", obj.ObjectType.ToString(), obj.TargetSafeName).ToString();
+        }
+
+        private string GetDeltaColumnType(SqlObject obj)
+        {
+            using SourceContext sourceContext = new(this._configuration);
+            return (from t in sourceContext.Types
+                          join c in sourceContext.Columns on t.SystemTypeId equals c.SystemTypeId
+                          select t.Name).AsNoTracking().FirstOrDefault();
         }
     }
 }

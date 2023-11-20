@@ -41,7 +41,7 @@ namespace SqlObjectCopy.DBActions
         {
             using ISocDbContext targetContext = new TargetContext(_configuration);
 
-            Models.Schemata targetSchema = (from s in targetContext.Schemata
+            Models.Schema targetSchema = (from s in targetContext.Schemata
                                             where s.SCHEMA_NAME == schemaName
                                             select s).AsNoTracking().FirstOrDefault();
 

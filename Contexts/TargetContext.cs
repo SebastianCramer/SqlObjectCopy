@@ -11,14 +11,15 @@ namespace SqlObjectCopy.Contexts
 
         #region Models
 
-        public DbSet<Tables> Tables { get; set; }
-        public DbSet<Routines> Routines { get; set; }
-        public DbSet<Columns> Columns { get; set; }
+        public DbSet<Table> Tables { get; set; }
+        public DbSet<Routine> Routines { get; set; }
+        public DbSet<Column> Columns { get; set; }
 
-        public DbSet<Schemata> Schemata { get; set; }
-        public DbSet<Scripts> Scripts { get; set; }
-        public DbSet<Constraints> Constraints { get; set; }
-        public DbSet<Domains> Domains { get; set; }
+        public DbSet<Schema> Schemata { get; set; }
+        public DbSet<Script> Scripts { get; set; }
+        public DbSet<Constraint> Constraints { get; set; }
+        public DbSet<Domain> Domains { get; set; }
+        public DbSet<Type> Types { get; set; }
 
         #endregion
 
@@ -34,19 +35,27 @@ namespace SqlObjectCopy.Contexts
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Tables>().ToView("TABLES", "INFORMATION_SCHEMA").HasNoKey();
-            modelBuilder.Entity<Routines>().ToView("ROUTINES", "INFORMATION_SCHEMA").HasNoKey();
-            modelBuilder.Entity<Schemata>().ToView("SCHEMATA", "INFORMATION_SCHEMA").HasNoKey();
-            modelBuilder.Entity<Constraints>().ToView("REFERENTIAL_CONSTRAINTS", "INFORMATION_SCHEMA").HasNoKey();
-            modelBuilder.Entity<Domains>().ToView("DOMAINS", "INFORMATION_SCHEMA").HasNoKey();
-            modelBuilder.Entity<Scripts>().HasNoKey();
-            modelBuilder.Entity<Columns>(entity =>
+            modelBuilder.Entity<Table>().ToView("TABLES", "INFORMATION_SCHEMA").HasNoKey();
+            modelBuilder.Entity<Routine>().ToView("ROUTINES", "INFORMATION_SCHEMA").HasNoKey();
+            modelBuilder.Entity<Schema>().ToView("SCHEMATA", "INFORMATION_SCHEMA").HasNoKey();
+            modelBuilder.Entity<Constraint>().ToView("REFERENTIAL_CONSTRAINTS", "INFORMATION_SCHEMA").HasNoKey();
+            modelBuilder.Entity<Domain>().ToView("DOMAINS", "INFORMATION_SCHEMA").HasNoKey();
+            modelBuilder.Entity<Script>().HasNoKey();
+            modelBuilder.Entity<Type>(entity =>
+            {
+                entity.ToView("types", "sys");
+                entity.Property(p => p.SystemTypeId).HasColumnName("system_type_id");
+                entity.Property(p => p.Name).HasColumnName("name");
+                entity.HasNoKey();
+            });
+            modelBuilder.Entity<Column>(entity =>
             {
                 entity.ToView("columns", "sys");
                 entity.HasNoKey();
                 entity.Property(p => p.ObjectId).HasColumnName("object_id");
                 entity.Property(p => p.Name).HasColumnName("name");
                 entity.Property(p => p.IsComputed).HasColumnName("is_computed");
+                entity.Property(p => p.SystemTypeId).HasColumnName("system_type_id");
             });
         }
 

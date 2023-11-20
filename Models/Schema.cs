@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SqlObjectCopy.Models
 {
-    public class Schemata
+    public class Schema
     {
         public string SCHEMA_NAME { get; set; }
     }

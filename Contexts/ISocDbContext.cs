@@ -7,13 +7,13 @@ namespace SqlObjectCopy.Contexts
 {
     public interface ISocDbContext : IDisposable
     {
-        public DbSet<Tables> Tables { get; set; }
-        public DbSet<Routines> Routines { get; set; }
-        public DbSet<Schemata> Schemata { get; set; }
-        public DbSet<Scripts> Scripts { get; set; }
-        public DbSet<Columns> Columns { get; set; }
-        public DbSet<Constraints> Constraints { get; set; }
-        public DbSet<Domains> Domains { get; set; }
+        public DbSet<Table> Tables { get; set; }
+        public DbSet<Routine> Routines { get; set; }
+        public DbSet<Schema> Schemata { get; set; }
+        public DbSet<Script> Scripts { get; set; }
+        public DbSet<Column> Columns { get; set; }
+        public DbSet<Constraint> Constraints { get; set; }
+        public DbSet<Domain> Domains { get; set; }
 
         public DatabaseFacade Database { get; }
     }

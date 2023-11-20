@@ -1,6 +1,6 @@
 ﻿namespace SqlObjectCopy.Models
 {
-    public class Routines
+    public class Routine
     {
         public string ROUTINE_NAME { get; set; }
         public string ROUTINE_TYPE { get; set; }

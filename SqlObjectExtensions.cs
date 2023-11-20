@@ -23,7 +23,7 @@ namespace SqlObjectCopy.Extensions
                 {
                     using ISocDbContext targetContext = new TargetContext(configuration);
 
-                    Scripts result = targetContext.Scripts.FromSqlRaw(
+                    Script result = targetContext.Scripts.FromSqlRaw(
                             FormattableStringFactory.Create("SELECT CAST(COUNT(*) AS NVARCHAR) AS CommandText FROM {0}", obj.FullName).ToString()).FirstOrDefault();
                     if (result != null && !string.IsNullOrEmpty(result.CommandText))
                     {
@@ -157,7 +157,7 @@ namespace SqlObjectCopy.Extensions
         {
             using ISocDbContext targetContext = new TargetContext(configuration);
             FormattableString command = FormattableStringFactory.Create("SELECT CAST(OBJECT_ID('{0}') AS NVARCHAR) AS CommandText", obj.TargetFullName);
-            Scripts result = targetContext.Scripts.FromSqlRaw(command.ToString()).FirstOrDefault();
+            Script result = targetContext.Scripts.FromSqlRaw(command.ToString()).FirstOrDefault();
             if (int.TryParse(result.CommandText, out int objectID))
             {
                 return objectID;
@@ -183,7 +183,7 @@ namespace SqlObjectCopy.Extensions
             using ISocDbContext targetContext = new TargetContext(configuration);
             FormattableString command = FormattableStringFactory.Create("SELECT CAST(MAX({0}) AS NVARCHAR) AS CommandText FROM {1}", obj.DeltaColumnName, obj.TargetFullName);
 
-            Scripts result = targetContext.Scripts.FromSqlRaw(command.ToString()).FirstOrDefault();
+            Script result = targetContext.Scripts.FromSqlRaw(command.ToString()).FirstOrDefault();
 
             return result.CommandText ?? Char.MinValue.ToString();
         }

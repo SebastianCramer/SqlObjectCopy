@@ -152,8 +152,6 @@ namespace SqlObjectCopy.DBActions
         {
             string fallbackCommand;
 
-            // var str = String.Format("SELECT * FROM {0} WHERE CAST({1} AS NVARCHAR) > '{2}'", obj.SafeName, obj.DeltaColumnName, obj.GetLastDeltaValue(_configuration));
-
             if (obj.IsDeltaTransport)
             {
                 fallbackCommand = FormattableStringFactory.Create("SELECT * FROM {0} WHERE CAST({1} AS NVARCHAR) > {2}", obj.SafeName, obj.DeltaColumnName, obj.GetLastDeltaValue(_configuration)).ToString();
@@ -171,7 +169,7 @@ namespace SqlObjectCopy.DBActions
             }
 
             ISocDbContext targetContext = new TargetContext(_configuration);
-            IQueryable<Columns> cols = (from c in targetContext.Columns
+            IQueryable<Column> cols = (from c in targetContext.Columns
                                         where !c.IsComputed && c.ObjectId == objectID
                                         select c).AsNoTracking();
 
@@ -182,7 +180,7 @@ namespace SqlObjectCopy.DBActions
 
             StringBuilder sb = new("SELECT ");
 
-            foreach (Columns c in cols.ToList())
+            foreach (Column c in cols.ToList())
             {
                 sb.Append('[');
                 sb.Append(c.Name);
@@ -194,9 +192,23 @@ namespace SqlObjectCopy.DBActions
             
             if (obj.IsDeltaTransport)
             {
-                sb.Append(" WHERE CAST(");
-                sb.Append(obj.DeltaColumnName);
-                sb.Append(" AS NVARCHAR) > '" + obj.GetLastDeltaValue(_configuration).ToString() + "'");
+                // we assume that the source column type and target column type are the same
+
+                if (obj.DeltaColumnType == null || string.IsNullOrWhiteSpace(obj.DeltaColumnType))
+                {
+                    // can't continue with this object
+                    // nvarchar can't be assumed since it does not work reliably with numeric types
+                    obj.Valid = false;
+                    _logger.LogError("{Object} delta column type cannot be found", obj.TargetFullName);
+                    throw new Exception("delta column type canno be found");
+                }
+
+                //sb.Append(" WHERE CAST(");
+                //sb.Append(obj.DeltaColumnName);
+                //sb.Append(" AS NVARCHAR) > '" + obj.GetLastDeltaValue(_configuration).ToString() + "'");
+
+                sb.Append(FormattableStringFactory.Create("WHERE {0} > CAST('{1}' AS {2})",
+                    obj.DeltaColumnName, obj.GetLastDeltaValue(_configuration).ToString(), obj.DeltaColumnType));
             }
 
             // get rid of the last comma while outputting
