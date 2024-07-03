@@ -117,7 +117,7 @@ SELECT @SQL = 'CREATE TABLE [%TargetTableName%]' + CHAR(13) + '(' + CHAR(13) + S
         FOR XML PATH(N''), TYPE).value('.', 'NVARCHAR(MAX)')), '')
     + ISNULL(((SELECT
          CHAR(13) + 'CREATE' + CASE WHEN i.is_unique = 1 THEN ' UNIQUE' ELSE '' END 
-                + ' NONCLUSTERED INDEX [' + i.name + '] ON ' + @object_name + ' (' +
+                + ' NONCLUSTERED INDEX [' + i.name + '] ON [%TargetTableName%] (' +
                 STUFF((
                 SELECT ', [' + c.name + ']' + CASE WHEN c.is_descending_key = 1 THEN ' DESC' ELSE ' ASC' END
                 FROM index_column c
