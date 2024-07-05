@@ -71,7 +71,7 @@ namespace SqlObjectCopy.Contexts
                 if (!string.IsNullOrEmpty(connectionString))
                 {
                     // use this
-                    optionsBuilder.UseSqlServer(connectionString);
+                    optionsBuilder.UseSqlServer(connectionString,sqlServerOptionsAction: (d) => d.CommandTimeout(this._configuration.SqlConnectionTimeout));
                 }
             }
         }

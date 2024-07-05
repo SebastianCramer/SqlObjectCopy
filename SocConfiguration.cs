@@ -4,6 +4,7 @@
     {
         public Connection[] Connections { get; set; }
         public int MaxParallelTransferThreads { get; set; }
+        public int SqlConnectionTimeout { get; set; }
     }
 
     public class Connection
